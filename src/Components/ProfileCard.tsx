@@ -1,7 +1,27 @@
 import { useState } from 'react';
+import TokenManager from '../utils/TokenManager';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { authState } from '../recoil/atoms/Auth';
+import useShowAlert from '../utils/useShowAlert';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);
+	const navigate = useNavigate();
+	const setAuthState = useSetRecoilState(authState);
+	const showAlert = useShowAlert();
+
+	function handleLogout() {
+		setIsOpen(false);
+		TokenManager.remove();
+		setAuthState('');
+		showAlert({
+			show: true,
+			type: 'primary',
+			msg: 'Logout Successful!',
+		});
+		navigate('/');
+	}
 	return (
 		<div className="text-white font-bold">
 			{isOpen ? (
@@ -54,6 +74,14 @@ export default function ProfileCard() {
 								</span>{' '}
 								shivam12dhaka@!1852
 							</p>
+						</div>
+						<div>
+							<button
+								onClick={() => handleLogout()}
+								className="sm:flex items-center justify-center  w-full py-4 mt-4 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold"
+							>
+								Logout
+							</button>
 						</div>
 					</div>
 				</div>

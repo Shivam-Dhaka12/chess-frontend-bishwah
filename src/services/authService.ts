@@ -25,9 +25,11 @@ const login = async ({
 			password,
 		});
 		return response.data;
-	} catch (error: unknown) {
+	} catch (error) {
 		if (axios.isAxiosError(error)) {
-			console.log(error.response?.data);
+			console.log('Axios error:', error.response?.data);
+		} else {
+			console.error('Server error:', error);
 		}
 		throw error;
 	}

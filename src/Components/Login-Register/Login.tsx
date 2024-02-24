@@ -45,11 +45,13 @@ const Login = () => {
 	);
 
 	const onLoginError = useCallback(
-		(error: any) => {
-			console.error(`${error.response.data.message}. Please try again`);
+		(error: unknown) => {
 			const msg = axios.isAxiosError(error)
 				? error.response?.data.message
 				: 'Something went wrong, Please try later';
+
+			console.error(msg);
+
 			showAlert({
 				show: true,
 				type: 'error',
@@ -71,9 +73,7 @@ const Login = () => {
 				},
 				{
 					onSuccess: onLoginSuccess,
-					onError: (error) => {
-						onLoginError(error);
-					},
+					onError: onLoginError,
 					onSettled: () => reset(),
 				}
 			);

@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import CustomDialog from './CustomDialog';
 import Chat from './Chat';
+import CopyLink from './CopyLink';
 
 interface MoveData {
 	from: Square;
@@ -66,6 +67,7 @@ const Game = () => {
 	return (
 		<>
 			<div className="flex items-center justify-center mt-16  ">
+				<CopyLink link="adf;ljasdfl;jal;sdfjlasdfl;asjflajflkj" />
 				<div className="w-full max-w-80 sm:max-w-96 md:max-w-sm  h-full  ">
 					<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
 						Player <span className="text-sky-500">1</span>
@@ -83,7 +85,6 @@ const Game = () => {
 							showBoardNotation
 						/>
 					</div>
-
 					<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
 						Player <span className="text-sky-500">2</span>
 					</p>

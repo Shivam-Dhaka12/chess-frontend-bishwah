@@ -1,7 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { authSelector } from '../recoil/selectors/authSelector';
+import { useRecoilValue } from 'recoil';
 
 export default function Landing() {
 	const navigate = useNavigate();
+	const authToken = useRecoilValue(authSelector);
+	const isLoggedIn = authToken ? true : false;
 
 	return (
 		<>
@@ -19,21 +23,33 @@ export default function Landing() {
 						Scoket.io
 					</code>
 				</p>
-				<div className="mt-10 flex justify-center space-x-6 text-sm sm:text-md ">
-					<a
-						onClick={() => navigate('/login')}
-						className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
-					>
-						Login
-					</a>
+				{isLoggedIn ? (
+					<div className="mt-10 flex justify-center space-x-6 text-sm sm:text-md ">
+						<a
+							onClick={() => navigate('/user/game')}
+							className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
+						>
+							Start Game
+						</a>
+					</div>
+				) : (
+					<div className="mt-10 flex justify-center space-x-6 text-sm sm:text-md ">
+						<a
+							onClick={() => navigate('/login')}
+							className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
+						>
+							Login
+						</a>
 
-					<button
-						onClick={() => navigate('/signup')}
-						className="sm:flex items-center justify-center sm:w-28  px-4 h-12 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold"
-					>
-						Register
-					</button>
-				</div>
+						<button
+							onClick={() => navigate('/signup')}
+							className="sm:flex items-center justify-center sm:w-28  px-4 h-12 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold"
+						>
+							Register
+						</button>
+					</div>
+				)}
+
 				<img
 					src="/two_player_icon.png"
 					width={300}
