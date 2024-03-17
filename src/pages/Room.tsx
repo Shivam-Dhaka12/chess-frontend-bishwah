@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Form from './Form';
+import Form from '../Components/Form';
 import { useNavigate } from 'react-router-dom';
 
 interface FormProps {
@@ -52,7 +52,7 @@ function CreateRoomForm({ onSetForm }: FormProps) {
 				OR
 			</p>
 			<button
-				onClick={() => onSetForm('create')}
+				onClick={() => onSetForm('join')}
 				className="sm:flex items-center justify-center  px-4 h-12 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-600 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold"
 			>
 				Join Room

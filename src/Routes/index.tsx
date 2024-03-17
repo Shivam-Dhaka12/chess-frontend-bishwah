@@ -1,24 +1,24 @@
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
-import Login from '../Components/Login-Register/Login';
-import Signup from '../Components/Login-Register/Signup';
-import Game from '../Components/Game';
-import Landing from '../Components/Landing';
-import JoinRoom from '../Components/Room';
-import Main from '../Components/Main';
-import PageNotFound from '../Components/PageNotFound';
+import Signin from '../pages/Singin';
+import Signup from '../pages/Signup';
+import Game from '../pages/Game';
+import Landing from '../pages/Landing';
+import JoinRoom from '../pages/Room';
+import Wrapper from '../Components/Wrapper';
+import PageNotFound from '../pages/PageNotFound';
 
 const Router = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
 	return useRoutes([
 		{
 			path: '/',
 			element: (
-				<Main>
+				<Wrapper>
 					<Outlet />
-				</Main>
+				</Wrapper>
 			),
 			children: [
 				{ path: '', element: <Landing /> },
-				{ path: 'login', element: <Login /> },
+				{ path: 'login', element: <Signin /> },
 				{ path: 'signup', element: <Signup /> },
 				{
 					path: 'user',

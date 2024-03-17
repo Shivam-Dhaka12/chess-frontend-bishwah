@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { authSelector } from '../recoil/selectors/authSelector';
 import { useRecoilValue } from 'recoil';
+import { authState } from '../recoil/atoms/Auth';
 
 export default function Landing() {
 	const navigate = useNavigate();
-	const authToken = useRecoilValue(authSelector);
+	const authToken = useRecoilValue(authState);
 	const isLoggedIn = authToken ? true : false;
 
 	return (
@@ -45,7 +45,7 @@ export default function Landing() {
 							onClick={() => navigate('/signup')}
 							className="sm:flex items-center justify-center sm:w-28  px-4 h-12 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold"
 						>
-							Register
+							Signup
 						</button>
 					</div>
 				)}

@@ -1,9 +1,9 @@
 import { Chess, Color, Move, Square } from 'chess.js';
 import { useCallback, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
-import CustomDialog from './CustomDialog';
-import Chat from './Chat';
-import CopyLink from './CopyLink';
+import CustomDialog from '../Components/CustomDialog';
+import Chat from '../Components/Chat';
+import CopyLink from '../Components/CopyLink';
 
 interface MoveData {
 	from: Square;
@@ -65,40 +65,38 @@ const Game = () => {
 	};
 
 	return (
-		<>
-			<div className="flex items-center justify-center mt-16  ">
-				<CopyLink link="adf;ljasdfl;jal;sdfjlasdfl;asjflajflkj" />
-				<div className="w-full max-w-80 sm:max-w-96 md:max-w-sm  h-full  ">
-					<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
-						Player <span className="text-sky-500">1</span>
-					</p>
-					<div className="rounded-lg overflow-x-clip border border-slate-700 shadow-md">
-						<Chessboard
-							position={fen}
-							onPieceDrop={onDrop}
-							customDarkSquareStyle={{
-								backgroundColor: '#475569',
-							}}
-							customLightSquareStyle={{
-								backgroundColor: '#E2E8F0',
-							}}
-							showBoardNotation
-						/>
-					</div>
-					<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
-						Player <span className="text-sky-500">2</span>
-					</p>
-					<Chat />
+		<div className="w-full justify-center flex">
+			<CopyLink link="http://localhost:3000" />
+			<div className="w-full max-w-80 sm:max-w-96 md:max-w-sm  h-full  ">
+				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
+					Player <span className="text-sky-500">1</span>
+				</p>
+				<div className="rounded-lg overflow-x-clip border border-slate-700 shadow-md">
+					<Chessboard
+						position={fen}
+						onPieceDrop={onDrop}
+						customDarkSquareStyle={{
+							backgroundColor: '#475569',
+						}}
+						customLightSquareStyle={{
+							backgroundColor: '#E2E8F0',
+						}}
+						showBoardNotation
+					/>
 				</div>
+				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
+					Player <span className="text-sky-500">2</span>
+				</p>
 				<Chat />
-				<CustomDialog
-					open={Boolean(over)}
-					title={over}
-					contentText={over}
-					handleContinue={() => setOver('')}
-				/>
 			</div>
-		</>
+			<Chat />
+			<CustomDialog
+				open={Boolean(over)}
+				title={over}
+				contentText={over}
+				handleContinue={() => setOver('')}
+			/>
+		</div>
 	);
 };
 
