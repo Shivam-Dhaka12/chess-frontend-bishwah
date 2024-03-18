@@ -3,7 +3,7 @@ import TokenManager from '../utils/TokenManager';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
-import useShowAlert from '../utils/useShowAlert';
+import useShowAlert from '../hooks/useShowAlert';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);

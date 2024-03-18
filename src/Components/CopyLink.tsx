@@ -1,37 +1,51 @@
 import { useState } from 'react';
-
+import useShowAlert from '../hooks/useShowAlert';
 export default function CopyLink({ link }: { link: string }) {
 	const [isOpen, setIsOpen] = useState(true);
-
+	const showAlert = useShowAlert();
+	//
+	function copyToClipboard(link: string) {
+		navigator.clipboard.writeText(link);
+		showAlert({
+			show: true,
+			type: 'secondary',
+			msg: 'Link copied to clipboard',
+		});
+	}
 	return (
 		<div className="text-white font-bold">
 			{isOpen && (
-				<div className="backdrop-blur-xl h-full w-full fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-40 flex items-center justify-center transition-opacity ">
-					<div className="bg-slate-900 mx-auto rounded-lg relative   pt-12 px-8 pb-8 sm:py-14 sm:px-24 shadow-sm min-w-72 sm:min-w-3xl">
+				<div className="backdrop-blur-lg h-full w-full fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center transition-opacity px-4">
+					<div className="bg-slate-800 mx-auto rounded-lg relative md:w-screen  sm:min-w-2xl  max-w-xl pt-12 pb-10 px-4 sm:px-8 border-2  shadow-lg  border-gray-600 flex flex-col justify-center">
 						<img
 							src="/cross.png"
 							alt="close button"
 							className="w-4 h-4 cursor-pointer absolute top-4 right-4 hover:scale-110 "
 							onClick={() => setIsOpen(false)}
 						/>
-
-						<div className="flex items-center ">
-							<input
-								type="text"
-								className="sm:flex items-center justify-center  w-full p-2  ring-slate-900/10 hover:ring-slate-300 focus:outline-none  focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-900 tracking-wide font-semibold border-slate-500 border px-4"
-								value={link}
-							/>
-							<img
-								src="/copy.png"
-								alt="copy button"
-								className="w-8 h-8 cursor-pointer  hover:scale-110 "
-							/>
-						</div>
-
-						<div className="flex items-center justify-center">
-							<button className="sm:flex items-center justify-center px-4 p-2 mt-4 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold ">
-								Room ID: {53467}
-							</button>
+						<button
+							type="button"
+							className="font-light absolute top-4 left-6 sm:left-10 text-slate-300 text-sm"
+						>
+							ID: {5432}
+						</button>
+						<div className="flex-grow flex flex-col justify-center">
+							<div className="font-light text-md my-2 text-slate-300 px-2">
+								Copy and share link to invite your friend.
+							</div>
+							<div className="flex items-center justify-between">
+								<input
+									type="text"
+									className="sm:flex items-center justify-center  w-full p-2  ring-slate-900/10 hover:ring-slate-300 focus:outline-none  focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-900 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-900 tracking-wide font-light border-slate-500 text-center border px-4 flex mr-4"
+									value={link}
+								/>
+								<img
+									src="/copy.png"
+									alt="copy button"
+									className="transform transition-transform w-10 h-10 cursor-pointer hover:scale-110 active:scale-95"
+									onClick={() => copyToClipboard(link)}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>

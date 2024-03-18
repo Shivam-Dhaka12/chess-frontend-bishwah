@@ -11,7 +11,6 @@ export default function useShowAlert() {
 		if (alertTimeoutRef.current) {
 			clearTimeout(alertTimeoutRef.current);
 		}
-
 		// Set the new alert
 		setAlert({
 			show: true,

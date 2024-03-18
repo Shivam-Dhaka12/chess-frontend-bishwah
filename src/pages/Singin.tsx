@@ -1,65 +1,46 @@
-//import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 import Form from '../Components/Form';
-import axios, { isAxiosError } from 'axios';
 import TokenManager from '../utils/TokenManager';
-import useShowAlert from '../utils/useShowAlert';
 import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
+import Loader from '../Components/Loader';
+import { useRequest } from '../hooks/useRequest';
 
 function Login() {
 	const navigate = useNavigate();
 	const setAuthState = useSetRecoilState(authState);
+
+	const { sendRequest, loading } = useRequest();
 
 	const [postInputs, setPostInputs] = useState({
 		username: '',
 		password: '',
 	});
 
-	const showAlert = useShowAlert();
-
-	async function sendRequest() {
-		try {
-			const url = `${import.meta.env.VITE_BACKEND_URL}/api/auth/signin`;
-			const response = await axios.post(url, postInputs);
+	const url = '/api/auth/signin';
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		if (e) {
+			e.preventDefault();
+		}
+		const response = await sendRequest(
+			url,
+			'/user/room',
+			postInputs,
+			'Log in successful!'
+		);
+		if (response) {
 			const jwt = response.data.token;
 			TokenManager.set(jwt);
 			setAuthState('true');
-
-			navigate('/room');
-			showAlert({
-				show: true,
-				type: 'primary',
-				msg: 'Logged in successfully',
-			});
-			//
-		} catch (error) {
-			let errorMsg = 'Something went wrong';
-			if (isAxiosError(error) && error.response) {
-				errorMsg = error.response.data.message;
-			}
-			showAlert({
-				show: true,
-				type: 'error',
-				msg: errorMsg,
-			});
-			console.error(error);
 		}
 	}
+	// const response = await axios.post(url, postInputs);
+
 	return (
 		<Form>
-			<form
-				className=" flex flex-col"
-				onSubmit={(e) => {
-					if (e) {
-						e.preventDefault();
-					}
-					sendRequest();
-					return;
-				}}
-			>
+			<form className=" flex flex-col" onSubmit={(e) => handleSubmit(e)}>
 				<h1 className="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white mb-10 md:mb-16">
 					Log
 					<span className="text-sky-500">i</span>n
@@ -95,10 +76,11 @@ function Login() {
 				/>
 
 				<button
-					className="mt-12 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
+					className="mt-12 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 disabled:bg-slate-600 highlight-white/20 hover:bg-sky-400 disabled:cursor-wait"
 					type="submit"
+					disabled={loading}
 				>
-					Login
+					{loading ? <Loader /> : 'Login'}
 				</button>
 
 				<p className="mt-6 text-sm  text-center max-w-3xl mx-auto text-slate-400">

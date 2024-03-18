@@ -11,6 +11,6 @@ export const alertState = atom<TAlert>({
 	default: {
 		show: false,
 		type: 'error',
-		msg: 'huha',
+		msg: 'This is an sample alert',
 	},
 });

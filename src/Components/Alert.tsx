@@ -12,7 +12,7 @@ export default function Alert() {
 
 	return (
 		<div
-			className={`${alertTypeClasses[type]}flex items-center alert md:alert  absolute top-8 left-1/2 -translate-x-1/2 md:left-auto md:-translate-x-0 md:top-10 md:right-10  text-white alert-error pl-6 pr-10 md:pl-8 md:pr-12 py-4 md:py-6 shadow-md highlight-white/20  cursor-pointer rounded-r-md rounded-tl-md min-w-max`}
+			className={`${alertTypeClasses[type]}flex items-center alert md:alert  absolute top-8 left-1/2 -translate-x-1/2 md:left-auto md:-translate-x-0 md:top-10 md:right-10  text-white alert-error pl-6 pr-10 md:pl-8 md:pr-12 py-4 md:py-6 shadow-md highlight-white/20  cursor-pointer rounded-r-md rounded-tl-md min-w-max z-30 md:z-30 lg:`}
 		>
 			{msg}
 

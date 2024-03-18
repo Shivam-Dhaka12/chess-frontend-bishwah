@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io-client';
 import React, { useRef, useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import EmojiPickerComponent from './EmojiPickerComponent';
+import EmojiPickerComponent from './EmojiPicker';
 
 const useSocket = () => {
 	const [receivedMessages, setReceivedMessages] = useState<

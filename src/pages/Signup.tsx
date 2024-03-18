@@ -1,64 +1,42 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRequest } from '../hooks/useRequest';
 import Form from '../Components/Form';
-import axios, { isAxiosError } from 'axios';
-import useShowAlert from '../utils/useShowAlert';
+import useShowAlert from '../hooks/useShowAlert';
+import Loader from '../Components/Loader';
 
 const Signup = () => {
 	const navigate = useNavigate();
+	const showAlert = useShowAlert();
+
+	const { sendRequest, loading } = useRequest();
+
 	const [postInputs, setPostInputs] = useState({
 		username: '',
 		password: '',
 		confirmPassword: '',
 	});
 
-	const showAlert = useShowAlert();
+	const url = '/api/auth/signup';
+	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		if (e) {
+			e.preventDefault();
+		}
 
-	async function sendRequest() {
-		try {
-			const url = `${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`;
-			await axios.post(url, postInputs);
-			navigate('/login');
-			showAlert({
-				show: true,
-				type: 'primary',
-				msg: 'Account created successfully',
-			});
-			//
-		} catch (error) {
-			let errorMsg = 'Something went wrong';
-			if (isAxiosError(error) && error.response) {
-				errorMsg = error.response.data.message;
-			}
+		if (postInputs.password !== postInputs.confirmPassword) {
 			showAlert({
 				show: true,
 				type: 'error',
-				msg: errorMsg,
+				msg: 'Passwords do not match',
 			});
-			console.error(error);
+			return;
 		}
+		sendRequest(url, '/login', postInputs, 'Account created successfully!');
 	}
 
 	return (
 		<Form>
-			<form
-				className="flex flex-col "
-				onSubmit={(e) => {
-					if (e) {
-						e.preventDefault();
-					}
-
-					if (postInputs.password !== postInputs.confirmPassword) {
-						showAlert({
-							show: true,
-							type: 'error',
-							msg: 'Passwords do not match',
-						});
-						return;
-					}
-					sendRequest();
-				}}
-			>
+			<form className="flex flex-col " onSubmit={(e) => handleSubmit(e)}>
 				<h1 className=" font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white mb-10 md:mb-16">
 					S<span className="text-sky-500">i</span>gnUp
 				</h1>
@@ -107,10 +85,11 @@ const Signup = () => {
 				/>
 
 				<button
-					className="mt-12 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400 "
+					className="mt-12 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400 disabled:bg-slate-600 disabled:cursor-wait"
 					type="submit"
+					disabled={loading}
 				>
-					Sign Up
+					{loading ? <Loader /> : 'SignUp'}
 				</button>
 
 				<p className="mt-6 text-sm  text-center max-w-3xl mx-auto text-slate-400">
