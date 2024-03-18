@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import TokenManager from '../utils/TokenManager';
 import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
 import useShowAlert from '../hooks/useShowAlert';
+import { userState } from '../recoil/atoms/User';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 	const setAuthState = useSetRecoilState(authState);
 	const showAlert = useShowAlert();
+	const user = useRecoilValue(userState);
 
 	function handleLogout() {
 		setIsOpen(false);
@@ -39,7 +41,7 @@ export default function ProfileCard() {
 							className="rounded-full mx-auto absolute w-18 -top-6 sm:-top-10 sm:w-24 left-1/2 -translate-x-1/2"
 						/>
 						<div className="font-semibold text-slate-50 text-sm  mt-2 text-center">
-							Shivam Dhaka
+							{user.username}
 						</div>
 						<div className="mt-8 max-w-64 text-center  mx-auto  border-white border shadow-sm p-4 rounded-lg flex justify-around text-slate-100 text-2xl">
 							<div>
@@ -66,7 +68,7 @@ export default function ProfileCard() {
 								<span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
 									Email:
 								</span>{' '}
-								shivamdhaka1200@gmail
+								{user.username}
 							</p>
 							<p>
 								<span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">

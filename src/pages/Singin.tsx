@@ -7,10 +7,12 @@ import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
 import Loader from '../Components/Loader';
 import { useRequest } from '../hooks/useRequest';
+import { userState } from '../recoil/atoms/User';
 
 function Login() {
 	const navigate = useNavigate();
 	const setAuthState = useSetRecoilState(authState);
+	const setUserState = useSetRecoilState(userState);
 
 	const { sendRequest, loading } = useRequest();
 
@@ -31,9 +33,10 @@ function Login() {
 			'Log in successful!'
 		);
 		if (response) {
-			const jwt = response.data.token;
+			const { jwt, username } = response.data;
 			TokenManager.set(jwt);
 			setAuthState('true');
+			setUserState({ username });
 		}
 	}
 	// const response = await axios.post(url, postInputs);
