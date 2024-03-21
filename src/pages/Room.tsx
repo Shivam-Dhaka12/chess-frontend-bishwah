@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Form from '../Components/Form';
 import { useNavigate } from 'react-router-dom';
-
+import { getSocketInstance } from '../utils/socketManager';
+import useShowAlert from '../hooks/useShowAlert';
 interface FormProps {
 	onSetForm: (form: string) => void;
 }
@@ -33,20 +34,49 @@ export default function JoinRoom() {
 
 function CreateRoomForm({ onSetForm }: FormProps) {
 	const navigate = useNavigate();
+	const setAlert = useShowAlert();
+	const socket = getSocketInstance();
+	const [roomId, setRoomId] = useState('');
 
+	function handleCreateRoom(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		console.log(roomId);
+		if (socket) {
+			console.log("Executing socket.emit('room-create', roomId);");
+			console.log(socket.emit('room-create', roomId));
+			console.log("Executing socket.emit('room-create', roomId);");
+
+			socket.on('room-created', (roomIdFromServer) => {
+				console.log('room-created');
+				setAlert({
+					show: true,
+					type: 'primary',
+					msg: 'Room created: ' + roomIdFromServer,
+				});
+				navigate('/game');
+			});
+		}
+	}
 	return (
-		<form action="" className="flex flex-col max-w-56 mt-8">
+		<form
+			action=""
+			className="flex flex-col max-w-56 mt-8"
+			onSubmit={(e) => handleCreateRoom(e)}
+		>
 			<input
 				type="text"
 				placeholder="Enter room ID"
 				className="px-2 mb-4 py-2 bg-transparent border-b-2 border-b-gray-200 text-gray-50 outline-none
 				hover:border-b-gray-50 transition-colors white-eye text-center"
+				required
+				onChange={(e) => setRoomId(e.target.value)}
+				value={roomId}
 			/>
 			<button
-				onClick={() => navigate('/user/game')}
 				className="mt-4 cursor-pointer  focus:outline-none focus:ring-2 focus:ring-slate-400 font-semibold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
+				type="submit"
 			>
-				Create a new room
+				Create room
 			</button>
 			<p className=" my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400">
 				OR
@@ -74,6 +104,7 @@ function JoinRoomForm({ onSetForm }: FormProps) {
 			/>
 			<button
 				onClick={() => navigate('/user/game')}
+				type="submit"
 				className="mt-4 cursor-pointer  focus:outline-none focus:ring-2 focus:ring-slate-400 font-semibold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
 			>
 				Join Room

@@ -1,8 +1,13 @@
 class TokenManager {
 	static get(): string {
-		const tkn: string | null = localStorage.getItem('__ustkn');
-		if (tkn) {
-			return JSON.parse(tkn);
+		const tkn: string | undefined | null = localStorage.getItem('__ustkn');
+
+		if (tkn !== undefined && tkn !== 'undefined' && tkn !== null) {
+			console.log('inside while tkn is undefined');
+			const data = JSON.parse(tkn);
+			console.log(data);
+
+			return data;
 		}
 		return '';
 	}

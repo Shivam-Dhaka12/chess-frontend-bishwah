@@ -1,18 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-
 import Form from '../Components/Form';
-import TokenManager from '../utils/TokenManager';
 import { useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
 import Loader from '../Components/Loader';
 import { useRequest } from '../hooks/useRequest';
 import { userState } from '../recoil/atoms/User';
+import { getSocketInstance, handleSocketError } from '../utils/socketManager';
+import useShowAlert from '../hooks/useShowAlert';
+import tokenManager from '../utils/tokenManager';
 
 function Login() {
 	const navigate = useNavigate();
 	const setAuthState = useSetRecoilState(authState);
 	const setUserState = useSetRecoilState(userState);
+	const setAlert = useShowAlert();
 
 	const { sendRequest, loading } = useRequest();
 
@@ -34,9 +36,21 @@ function Login() {
 		);
 		if (response) {
 			const { jwt, username } = response.data;
-			TokenManager.set(jwt);
+			tokenManager.set(jwt);
 			setAuthState('true');
 			setUserState({ username });
+
+			try {
+				const socket = getSocketInstance(jwt);
+				handleSocketError(socket);
+			} catch (error) {
+				console.log(error);
+				setAlert({
+					show: true,
+					type: 'error',
+					msg: 'Error: ' + error,
+				});
+			}
 		}
 	}
 	// const response = await axios.post(url, postInputs);

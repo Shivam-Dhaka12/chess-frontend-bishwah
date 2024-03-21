@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import TokenManager from '../utils/TokenManager';
+import TokenManager from '../utils/tokenManager';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';

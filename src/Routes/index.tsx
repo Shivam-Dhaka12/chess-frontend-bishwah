@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
-import Signin from '../pages/Singin';
+import Signin from '../pages/Signin';
 import Signup from '../pages/Signup';
 import Game from '../pages/Game';
 import Landing from '../pages/Landing';
