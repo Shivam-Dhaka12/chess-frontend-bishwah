@@ -37,6 +37,7 @@ export default function CopyLink({ link }: { link: string }) {
 								<input
 									type="text"
 									className="sm:flex items-center justify-center  w-full p-2  ring-slate-900/10 hover:ring-slate-300 focus:outline-none  focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-900 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-900 tracking-wide font-light border-slate-500 text-center border px-4 flex mr-4"
+									readOnly
 									value={link}
 								/>
 								<img

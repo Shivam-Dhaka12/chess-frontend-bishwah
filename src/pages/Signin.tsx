@@ -35,13 +35,13 @@ function Login() {
 			'Log in successful!'
 		);
 		if (response) {
-			const { jwt, username } = response.data;
-			tokenManager.set(jwt);
+			const { token, username } = response.data;
+			tokenManager.set(token);
 			setAuthState('true');
 			setUserState({ username });
 
 			try {
-				const socket = getSocketInstance(jwt);
+				const socket = getSocketInstance(token);
 				handleSocketError(socket);
 			} catch (error) {
 				console.log(error);
@@ -53,7 +53,6 @@ function Login() {
 			}
 		}
 	}
-	// const response = await axios.post(url, postInputs);
 
 	return (
 		<Form>
