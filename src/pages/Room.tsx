@@ -42,9 +42,7 @@ function CreateRoomForm({ onSetForm }: FormProps) {
 		e.preventDefault();
 		console.log(roomId);
 		if (socket) {
-			console.log("Executing socket.emit('room-create', roomId);");
 			console.log(socket.emit('room-create', roomId));
-			console.log("Executing socket.emit('room-create', roomId);");
 
 			socket.on('room-created', (roomIdFromServer) => {
 				console.log('room-created');
@@ -53,7 +51,7 @@ function CreateRoomForm({ onSetForm }: FormProps) {
 					type: 'primary',
 					msg: 'Room created: ' + roomIdFromServer,
 				});
-				navigate('/game');
+				navigate('/user/game');
 			});
 		}
 	}
@@ -93,17 +91,42 @@ function CreateRoomForm({ onSetForm }: FormProps) {
 
 function JoinRoomForm({ onSetForm }: FormProps) {
 	const navigate = useNavigate();
+	const setAlert = useShowAlert();
+	const socket = getSocketInstance();
+	const [roomId, setRoomId] = useState('');
+
+	function handleJoinRoom(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		console.log(roomId);
+		if (socket) {
+			console.log(socket.emit('room-join', roomId));
+
+			socket.on('room-joined', (msgFromServer) => {
+				console.log('room-joined');
+				setAlert({
+					show: true,
+					type: 'primary',
+					msg: msgFromServer,
+				});
+				navigate('/user/game');
+			});
+		}
+	}
 
 	return (
-		<form action="" className="flex flex-col max-w-56 mt-8">
+		<form
+			className="flex flex-col max-w-56 mt-8"
+			onSubmit={(e) => handleJoinRoom(e)}
+		>
 			<input
 				type="text"
 				placeholder="Enter room ID"
 				className="px-2 mb-4 py-2 bg-transparent border-b-2 border-b-gray-200 text-gray-50 outline-none
 				hover:border-b-gray-50 transition-colors white-eye text-center"
+				onChange={(e) => setRoomId(e.target.value)}
+				value={roomId}
 			/>
 			<button
-				onClick={() => navigate('/user/game')}
 				type="submit"
 				className="mt-4 cursor-pointer  focus:outline-none focus:ring-2 focus:ring-slate-400 font-semibold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
 			>

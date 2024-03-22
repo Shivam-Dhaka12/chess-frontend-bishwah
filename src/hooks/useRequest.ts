@@ -12,14 +12,19 @@ export function useRequest() {
 		url: string,
 		onSuccessUrl: string,
 		postInputs: object,
-		successMsg: string
+		successMsg: string,
+		headers: object = {
+			'Content-Type': 'application/json',
+		}
 	) => {
 		setLoading(true);
-
 		const completeUrl = `${import.meta.env.VITE_BACKEND_URL}${url}`;
 		try {
-			const response = await axios.post(completeUrl, postInputs);
-			if (onSuccessUrl) {
+			const response = await axios.post(completeUrl, postInputs, {
+				headers,
+			});
+			if (onSuccessUrl !== 'null') {
+				console.log('inside onSuccess', onSuccessUrl);
 				navigate(onSuccessUrl);
 			}
 			showAlert({

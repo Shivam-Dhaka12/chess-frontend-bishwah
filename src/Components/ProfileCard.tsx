@@ -1,28 +1,54 @@
 import { useState } from 'react';
 import TokenManager from '../utils/tokenManager';
-import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
 import useShowAlert from '../hooks/useShowAlert';
 import { userState } from '../recoil/atoms/User';
+import { useRequest } from '../hooks/useRequest';
+import Loader from './Loader';
+import { deleteSocketInstance } from '../utils/socketManager';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);
-	const navigate = useNavigate();
 	const setAuthState = useSetRecoilState(authState);
 	const showAlert = useShowAlert();
 	const user = useRecoilValue(userState);
+	const { sendRequest, loading } = useRequest();
 
-	function handleLogout() {
+	const navigate = useNavigate();
+
+	async function handleLogout() {
 		setIsOpen(false);
-		TokenManager.remove();
-		setAuthState('');
-		showAlert({
-			show: true,
-			type: 'primary',
-			msg: 'Logout Successful!',
-		});
-		navigate('/');
+		const token = TokenManager.get();
+		const headers = {
+			'Content-Type': 'application/json',
+			token, // Include the token in the Authorization header
+		};
+		if (token) {
+			const response = await sendRequest(
+				'/api/protected/logout',
+				'null',
+				{},
+				'Logout Successful!',
+				headers
+			);
+
+			if (!response?.data.success) {
+				showAlert({
+					show: true,
+					type: 'error',
+					msg:
+						'Error: ' + response?.data.message ||
+						'Something went wrong',
+				});
+			}
+			TokenManager.remove();
+			setAuthState('');
+			deleteSocketInstance();
+
+			console.log(navigate('/landing'));
+		}
 	}
 	return (
 		<div className="text-white font-bold">
@@ -82,7 +108,7 @@ export default function ProfileCard() {
 								onClick={() => handleLogout()}
 								className="sm:flex items-center justify-center  w-full py-4 mt-4 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold"
 							>
-								Logout
+								{loading ? <Loader /> : 'Logout'}
 							</button>
 						</div>
 					</div>

@@ -17,10 +17,15 @@ const getSocketInstance = (jwt?: string) => {
 	return socketInstance;
 };
 
+const deleteSocketInstance = () => {
+	socketInstance = null;
+};
+
 const handleSocketError = (socket: Socket) => {
 	socket.on('error', (error: { message: string }) => {
 		// Display an alert with the error message
 		alert(error.message);
 	});
 };
-export { getSocketInstance, handleSocketError };
+
+export { getSocketInstance, deleteSocketInstance, handleSocketError };

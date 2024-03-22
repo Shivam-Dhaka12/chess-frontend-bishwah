@@ -4,6 +4,11 @@ import { Chessboard } from 'react-chessboard';
 import CustomDialog from '../Components/CustomDialog';
 import Chat from '../Components/Chat';
 import CopyLink from '../Components/CopyLink';
+import useShowAlert from '../hooks/useShowAlert';
+import { getSocketInstance } from '../utils/socketManager';
+import { useRecoilValue } from 'recoil';
+import { authState } from '../recoil/atoms/Auth';
+import TokenManager from '../utils/tokenManager';
 
 interface MoveData {
 	from: Square;
@@ -15,6 +20,33 @@ const Game = () => {
 	const chess = useMemo<Chess>(() => new Chess(), []);
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
+	const setAlert = useShowAlert();
+
+	const authToken = useRecoilValue(authState);
+	const isLoggedIn = authToken ? true : false;
+
+	if (isLoggedIn) {
+		const token = TokenManager.get();
+		const socket = getSocketInstance(token);
+
+		if (socket) {
+			socket.on('room-joined', (msgFromServer) => {
+				setAlert({
+					show: true,
+					type: 'primary',
+					msg: msgFromServer,
+				});
+			});
+
+			socket.on('player-disconnect', (msgFromServer) => {
+				setAlert({
+					show: true,
+					type: 'error',
+					msg: msgFromServer,
+				});
+			});
+		}
+	}
 
 	const makeAMove = useCallback(
 		(move: MoveData): Move | null => {

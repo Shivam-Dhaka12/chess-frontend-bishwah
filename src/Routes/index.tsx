@@ -18,6 +18,7 @@ const Router = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
 			),
 			children: [
 				{ path: '', element: <Landing /> },
+				{ path: 'landing', element: <Landing /> },
 				{ path: 'login', element: <Signin /> },
 				{ path: 'signup', element: <Signup /> },
 				{
