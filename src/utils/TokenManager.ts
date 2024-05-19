@@ -6,7 +6,7 @@ class TokenManager {
 			const data = JSON.parse(tkn);
 			return data;
 		}
-		return '';
+		return 'Invalid_Token';
 	}
 
 	static set(val: string): void {
@@ -15,6 +15,7 @@ class TokenManager {
 
 	static remove(): void {
 		localStorage.removeItem('__ustkn');
+		console.log('Token removed');
 	}
 
 	static clear(): void {

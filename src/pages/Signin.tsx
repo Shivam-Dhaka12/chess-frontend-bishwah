@@ -8,13 +8,13 @@ import { useRequest } from '../hooks/useRequest';
 import { userState } from '../recoil/atoms/User';
 import { getSocketInstance, handleSocketError } from '../utils/socketManager';
 import useShowAlert from '../hooks/useShowAlert';
-import tokenManager from '../utils/tokenManager';
+import tokenManager from '../utils/TokenManager';
 
 function Login() {
 	const navigate = useNavigate();
 	const setAuthState = useSetRecoilState(authState);
 	const setUserState = useSetRecoilState(userState);
-	const setAlert = useShowAlert();
+	const showAlert = useShowAlert();
 
 	const { sendRequest, loading } = useRequest();
 
@@ -30,22 +30,22 @@ function Login() {
 		}
 		const response = await sendRequest(
 			url,
-			'/user/room',
 			postInputs,
 			'Log in successful!'
 		);
 		if (response) {
 			const { token, username } = response.data;
 			tokenManager.set(token);
-			setAuthState('true');
+			setAuthState({ token });
 			setUserState({ username });
 
 			try {
 				const socket = getSocketInstance(token);
-				handleSocketError(socket);
+				handleSocketError(socket, showAlert);
+				navigate('/user/room');
 			} catch (error) {
 				console.log(error);
-				setAlert({
+				showAlert({
 					show: true,
 					type: 'error',
 					msg: 'Error: ' + error,

@@ -30,14 +30,14 @@ const Router = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
 							element: <JoinRoom />,
 						},
 						{
-							path: 'Game',
+							path: 'game/:roomId',
 							element: <Game />,
 						},
 					],
 				},
 				// below are testing routes, without auth
 				{ path: 'room', element: <JoinRoom /> },
-				{ path: 'game', element: <Game /> },
+				{ path: 'game/:roomId', element: <Game /> },
 
 				{
 					path: '*',

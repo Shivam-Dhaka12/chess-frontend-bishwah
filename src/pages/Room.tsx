@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Form from '../Components/Form';
 import { useNavigate } from 'react-router-dom';
-import { getSocketInstance } from '../utils/socketManager';
+import { getSocketInstance, handleSocketError } from '../utils/socketManager';
 import useShowAlert from '../hooks/useShowAlert';
+import { authState } from '../recoil/atoms/Auth';
+import { useRecoilValue } from 'recoil';
 interface FormProps {
 	onSetForm: (form: string) => void;
 }
@@ -35,23 +37,30 @@ export default function JoinRoom() {
 function CreateRoomForm({ onSetForm }: FormProps) {
 	const navigate = useNavigate();
 	const setAlert = useShowAlert();
-	const socket = getSocketInstance();
+	const token = useRecoilValue(authState).token;
+
+	const socket = getSocketInstance(token);
 	const [roomId, setRoomId] = useState('');
 
 	function handleCreateRoom(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log(roomId);
 		if (socket) {
 			console.log(socket.emit('room-create', roomId));
 
+			socket.on('error', (message) => {
+				// Display an alert with the error message
+				alert(message);
+				console.log('error  huhaakj adlkkjfadl dslkjksdf' + message);
+			});
+
 			socket.on('room-created', (roomIdFromServer) => {
-				console.log('room-created');
+				console.log('room-created: ' + roomIdFromServer);
 				setAlert({
 					show: true,
 					type: 'primary',
 					msg: 'Room created: ' + roomIdFromServer,
 				});
-				navigate('/user/game');
+				navigate('/user/game/' + roomIdFromServer);
 			});
 		}
 	}
@@ -92,15 +101,20 @@ function CreateRoomForm({ onSetForm }: FormProps) {
 function JoinRoomForm({ onSetForm }: FormProps) {
 	const navigate = useNavigate();
 	const setAlert = useShowAlert();
-	const socket = getSocketInstance();
+	const token = useRecoilValue(authState).token;
+	const showAlert = useShowAlert();
+	const socket = getSocketInstance(token);
 	const [roomId, setRoomId] = useState('');
 
 	function handleJoinRoom(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		console.log(socket);
 		console.log(roomId);
-		if (socket) {
-			console.log(socket.emit('room-join', roomId));
 
+		if (socket) {
+			console.log('inside socket');
+			console.log(socket.emit('room-join', roomId));
+			console.log('after emit');
 			socket.on('room-joined', (msgFromServer) => {
 				console.log('room-joined');
 				setAlert({
@@ -108,8 +122,9 @@ function JoinRoomForm({ onSetForm }: FormProps) {
 					type: 'primary',
 					msg: msgFromServer,
 				});
-				navigate('/user/game');
+				navigate('/user/game/' + roomId);
 			});
+			handleSocketError(socket, showAlert);
 		}
 	}
 

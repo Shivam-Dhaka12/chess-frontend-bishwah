@@ -1,12 +1,13 @@
 import { Socket, io } from 'socket.io-client';
-
+import { TAlert } from '../recoil/atoms/Alert';
 // Singleton pattern implementation
 let socketInstance: Socket | null = null;
 
-const getSocketInstance = (jwt?: string) => {
+const getSocketInstance = (jwt: string) => {
 	if (!socketInstance) {
 		if (!jwt) {
-			throw new Error('JWT token not provided');
+			console.log('jwt not provided');
+			return;
 		}
 		socketInstance = io(import.meta.env.VITE_BACKEND_URL, {
 			auth: {
@@ -21,10 +22,18 @@ const deleteSocketInstance = () => {
 	socketInstance = null;
 };
 
-const handleSocketError = (socket: Socket) => {
+const handleSocketError = (
+	socket: Socket,
+	showAlert: ({ type, msg }: TAlert) => void
+) => {
+	console.log('inside handlesocket');
 	socket.on('error', (error: { message: string }) => {
 		// Display an alert with the error message
-		alert(error.message);
+		showAlert({
+			show: true,
+			type: 'error',
+			msg: 'Error: ' + error.message,
+		});
 	});
 };
 

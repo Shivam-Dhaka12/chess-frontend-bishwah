@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRequest } from '../hooks/useRequest';
 import Form from '../Components/Form';
-import useShowAlert from '../hooks/useShowAlert';
 import Loader from '../Components/Loader';
+import useShowAlert from '../hooks/useShowAlert';
 
 const Signup = () => {
 	const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Signup = () => {
 	});
 
 	const url = '/api/auth/signup';
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		if (e) {
 			e.preventDefault();
 		}
@@ -31,7 +31,16 @@ const Signup = () => {
 			});
 			return;
 		}
-		sendRequest(url, '/login', postInputs, 'Account created successfully!');
+
+		const response = await sendRequest(
+			url,
+			postInputs,
+			'Account created successfully!'
+		);
+
+		if (response?.status === 201) {
+			navigate('/login');
+		}
 	}
 
 	return (

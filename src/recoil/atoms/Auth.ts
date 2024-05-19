@@ -1,7 +1,9 @@
 import { atom } from 'recoil';
-import TokenManager from '../../utils/tokenManager';
+import TokenManager from '../../utils/TokenManager';
 
-export const authState = atom({
+export const authState = atom<{ token: string }>({
 	key: 'auth',
-	default: TokenManager.get(),
+	default: {
+		token: TokenManager.get(),
+	},
 });

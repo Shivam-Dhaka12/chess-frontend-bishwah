@@ -8,7 +8,7 @@ import useShowAlert from '../hooks/useShowAlert';
 import { getSocketInstance } from '../utils/socketManager';
 import { useRecoilValue } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
-import TokenManager from '../utils/tokenManager';
+import { useParams } from 'react-router-dom';
 
 interface MoveData {
 	from: Square;
@@ -16,34 +16,48 @@ interface MoveData {
 	color: Color;
 }
 
-const Game = () => {
+function Game() {
 	const chess = useMemo<Chess>(() => new Chess(), []);
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
 	const setAlert = useShowAlert();
 
-	const authToken = useRecoilValue(authState);
+	const { roomId } = useParams();
+
+	const authToken = useRecoilValue(authState).token;
 	const isLoggedIn = authToken ? true : false;
 
+	const handleRoomEvent = (
+		msgFromServer: string,
+		alertType: 'primary' | 'error' | 'secondary'
+	) => {
+		setAlert({
+			show: true,
+			type: alertType,
+			msg: msgFromServer,
+		});
+	};
+
 	if (isLoggedIn) {
-		const token = TokenManager.get();
-		const socket = getSocketInstance(token);
+		const socket = getSocketInstance(authToken);
+
+		socket.emit('reconnect-attempt');
 
 		if (socket) {
-			socket.on('room-joined', (msgFromServer) => {
-				setAlert({
-					show: true,
-					type: 'primary',
-					msg: msgFromServer,
-				});
+			socket.on('room-joined', (msgFromServer: string) => {
+				handleRoomEvent(msgFromServer, 'primary');
 			});
-
-			socket.on('player-disconnect', (msgFromServer) => {
-				setAlert({
-					show: true,
-					type: 'error',
-					msg: msgFromServer,
-				});
+			socket.on('player-reconnecting', (msgFromServer: string) => {
+				handleRoomEvent(msgFromServer, 'secondary');
+			});
+			socket.on('player-reconnect', (msgFromServer: string) => {
+				handleRoomEvent(msgFromServer, 'secondary');
+			});
+			socket.on('player-disconnect', (msgFromServer: string) => {
+				handleRoomEvent(msgFromServer, 'error');
+			});
+			socket.on('reconnect-gameover', (msgFromServer: string) => {
+				handleRoomEvent(msgFromServer, 'error');
 			});
 		}
 	}
@@ -100,6 +114,10 @@ const Game = () => {
 		<div className="w-full justify-center flex">
 			<CopyLink link="http://localhost:3000" />
 			<div className="w-full max-w-80 sm:max-w-96 md:max-w-sm  h-full  ">
+				<p className="font-bold text-lg sm:text-xl lg:text-2xl tracking-tight text-center text-white mb-6 md:mb-10">
+					R<span className="text-sky-500">oo</span>m{' '}
+					<span className="text-sky-500">:</span> {roomId}
+				</p>
 				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
 					Player <span className="text-sky-500">1</span>
 				</p>
@@ -130,6 +148,6 @@ const Game = () => {
 			/>
 		</div>
 	);
-};
+}
 
 export default Game;

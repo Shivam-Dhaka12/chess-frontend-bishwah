@@ -1,55 +1,83 @@
-import { useState } from 'react';
-import TokenManager from '../utils/tokenManager';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { authState } from '../recoil/atoms/Auth';
+import Loader from './Loader';
+import TokenManager from '../utils/TokenManager';
 import useShowAlert from '../hooks/useShowAlert';
+import { useState } from 'react';
+import { authState } from '../recoil/atoms/Auth';
 import { userState } from '../recoil/atoms/User';
 import { useRequest } from '../hooks/useRequest';
-import Loader from './Loader';
-import { deleteSocketInstance } from '../utils/socketManager';
 import { useNavigate } from 'react-router-dom';
+import { deleteSocketInstance } from '../utils/socketManager';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);
 	const setAuthState = useSetRecoilState(authState);
 	const showAlert = useShowAlert();
 	const user = useRecoilValue(userState);
+	const token = useRecoilValue(authState).token;
 	const { sendRequest, loading } = useRequest();
 
 	const navigate = useNavigate();
 
 	async function handleLogout() {
 		setIsOpen(false);
-		const token = TokenManager.get();
+
+		const url = '/api/protected/logout';
+		const postInputs = {};
+		const onSuccessUrl = '/';
+		const successMsg = 'Logout Successful!';
+
+		if (!token || token === 'Invalid_Token') {
+			showAlert({
+				show: true,
+				type: 'secondary',
+				msg: 'Already Logged out',
+			});
+
+			TokenManager.remove();
+			setAuthState({
+				token: '',
+			});
+
+			navigate(onSuccessUrl);
+			return;
+		}
+
 		const headers = {
 			'Content-Type': 'application/json',
 			token, // Include the token in the Authorization header
 		};
-		if (token) {
-			const response = await sendRequest(
-				'/api/protected/logout',
-				'null',
-				{},
-				'Logout Successful!',
-				headers
-			);
 
-			if (!response?.data.success) {
-				showAlert({
-					show: true,
-					type: 'error',
-					msg:
-						'Error: ' + response?.data.message ||
-						'Something went wrong',
-				});
-			}
+		const response = await sendRequest(
+			url,
+			postInputs,
+			successMsg,
+			headers
+		);
+
+		if (!response?.data.success) {
+			showAlert({
+				show: true,
+				type: 'error',
+				msg:
+					'Error: ' + response?.data.message ||
+					'Something went wrong',
+			});
+		} else {
 			TokenManager.remove();
-			setAuthState('');
+			setAuthState({
+				token: '',
+			});
 			deleteSocketInstance();
-
-			console.log(navigate('/landing'));
+			showAlert({
+				show: true,
+				type: 'primary',
+				msg: successMsg,
+			});
+			navigate(onSuccessUrl);
 		}
 	}
+
 	return (
 		<div className="text-white font-bold">
 			{isOpen ? (
