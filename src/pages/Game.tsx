@@ -41,8 +41,6 @@ function Game() {
 	if (isLoggedIn) {
 		const socket = getSocketInstance(authToken);
 
-		socket.emit('reconnect-attempt');
-
 		if (socket) {
 			socket.on('room-joined', (msgFromServer: string) => {
 				handleRoomEvent(msgFromServer, 'primary');
@@ -137,7 +135,6 @@ function Game() {
 				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
 					Player <span className="text-sky-500">2</span>
 				</p>
-				<Chat />
 			</div>
 			<Chat />
 			<CustomDialog

@@ -105,7 +105,7 @@ const Chat = () => {
 				<img
 					src="/chat.png"
 					alt="chat button"
-					className="absolute cursor-pointer bottom-10 right-10"
+					className="absolute cursor-pointer bottom-6 right-10"
 					onClick={() => setIsOpen((prev) => !prev)}
 				/>
 			</div>
