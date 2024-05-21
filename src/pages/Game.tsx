@@ -25,7 +25,8 @@ function Game() {
 	const { roomId } = useParams();
 
 	const authToken = useRecoilValue(authState).token;
-	const isLoggedIn = authToken ? true : false;
+	let isLoggedIn = true;
+	if (!authToken || authToken === 'Invalid_Token') isLoggedIn = false;
 
 	const handleRoomEvent = (
 		msgFromServer: string,

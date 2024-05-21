@@ -9,6 +9,7 @@ const getSocketInstance = (jwt: string) => {
 			console.log('jwt not provided');
 			return;
 		}
+		//create new instance with server
 		socketInstance = io(import.meta.env.VITE_BACKEND_URL, {
 			auth: {
 				token: jwt,
@@ -26,7 +27,6 @@ const handleSocketError = (
 	socket: Socket,
 	showAlert: ({ type, msg }: TAlert) => void
 ) => {
-	console.log('inside handlesocket');
 	socket.on('error', (error: { message: string }) => {
 		// Display an alert with the error message
 		showAlert({

@@ -8,8 +8,9 @@ import Alert from './Alert';
 export default function Wrapper({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
 	const alert = useRecoilValue(alertState);
-	const authToken = useRecoilValue(authState);
-	const isLoggedIn = authToken ? true : false;
+	const authToken = useRecoilValue(authState).token;
+	let isLoggedIn = true;
+	if (!authToken || authToken === 'Invalid_Token') isLoggedIn = false;
 
 	return (
 		<div className="bg-gradient-to-b from-slate-950 to-slate-800 min-h-screen flex flex-col  pt-4 sm:pt-6 px-6 md:px-8 scroll-auto text-slate-50">
