@@ -1,7 +1,6 @@
 import { useState } from 'react';
-// import { NavigateFunction } from 'react-router-dom';
 import axios, { isAxiosError } from 'axios';
-import useShowAlert from './useShowAlert'; // Assuming you have a custom hook for showing alerts
+import useShowAlert from './useShowAlert';
 
 export function useRequest() {
 	const showAlert = useShowAlert();
@@ -31,7 +30,10 @@ export function useRequest() {
 			return response;
 		} catch (error) {
 			console.log(error);
-			let errorMsg = error.message;
+			let errorMsg = 'Something went wrong';
+			if (error instanceof Error) {
+				errorMsg = error.message;
+			}
 			if (isAxiosError(error) && error.response) {
 				errorMsg = error.response.data.message;
 			}

@@ -5,7 +5,7 @@ import CustomDialog from '../Components/CustomDialog';
 import Chat from '../Components/Chat';
 import CopyLink from '../Components/CopyLink';
 import useShowAlert from '../hooks/useShowAlert';
-import { getSocketInstance } from '../utils/socketManager';
+import { getSocketInstance, handleSocketError } from '../utils/socketManager';
 import { useRecoilValue } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
 import { useParams } from 'react-router-dom';
@@ -20,7 +20,7 @@ function Game() {
 	const chess = useMemo<Chess>(() => new Chess(), []);
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
-	const setAlert = useShowAlert();
+	const showAlert = useShowAlert();
 
 	const { roomId } = useParams();
 
@@ -32,7 +32,7 @@ function Game() {
 		msgFromServer: string,
 		alertType: 'primary' | 'error' | 'secondary'
 	) => {
-		setAlert({
+		showAlert({
 			show: true,
 			type: alertType,
 			msg: msgFromServer,
@@ -55,8 +55,32 @@ function Game() {
 			socket.on('player-disconnect', (msgFromServer: string) => {
 				handleRoomEvent(msgFromServer, 'error');
 			});
-			socket.on('reconnect-gameover', (msgFromServer: string) => {
-				handleRoomEvent(msgFromServer, 'error');
+
+			socket.on('reconnect', (roomId: string) => {
+				console.log('reconnecting......' + roomId);
+
+				console.log(
+					'reconnecting...' + socket.emit('room-join', roomId)
+				);
+
+				socket.on('error', (msgFromServer) => {
+					showAlert({
+						show: true,
+						type: 'error',
+						msg: msgFromServer,
+					});
+				});
+
+				socket.on('room-joined', (msgFromServer) => {
+					console.log('room-joined');
+					showAlert({
+						show: true,
+						type: 'primary',
+						msg: msgFromServer,
+					});
+				});
+
+				handleSocketError(socket, showAlert);
 			});
 		}
 	}

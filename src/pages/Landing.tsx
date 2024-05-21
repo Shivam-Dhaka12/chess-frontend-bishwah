@@ -7,6 +7,7 @@ export default function Landing() {
 	const authToken = useRecoilValue(authState).token;
 	let isLoggedIn = true;
 	if (!authToken || authToken === 'Invalid_Token') isLoggedIn = false;
+	console.log(isLoggedIn, authToken);
 
 	return (
 		<>
@@ -29,7 +30,9 @@ export default function Landing() {
 						<a
 							onClick={() => navigate('/user/room')}
 							className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
-						></a>
+						>
+							Join Game
+						</a>
 					</div>
 				) : (
 					<div className="mt-10 flex justify-center space-x-6 text-sm sm:text-md ">

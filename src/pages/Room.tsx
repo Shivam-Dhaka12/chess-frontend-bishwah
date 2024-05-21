@@ -105,15 +105,16 @@ function JoinRoomForm({ onSetForm }: FormProps) {
 
 	function handleJoinRoom(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log('Socket: ', socket);
-		console.log('RoomID: ', roomId);
 
 		if (socket) {
 			console.log(socket.emit('room-join', roomId));
 
-			socket.on('error', (message) => {
-				// Display an alert with the error message
-				showAlert(message);
+			socket.on('error', (msgFromServer) => {
+				showAlert({
+					show: true,
+					type: 'error',
+					msg: msgFromServer,
+				});
 			});
 
 			socket.on('room-joined', (msgFromServer) => {
@@ -125,7 +126,10 @@ function JoinRoomForm({ onSetForm }: FormProps) {
 				});
 				navigate('/user/game/' + roomId);
 			});
+
 			handleSocketError(socket, showAlert);
+		} else {
+			console.log('socket not initialized');
 		}
 	}
 

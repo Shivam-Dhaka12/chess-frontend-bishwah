@@ -41,7 +41,9 @@ function Login() {
 
 			try {
 				const socket = getSocketInstance(token);
-				handleSocketError(socket, showAlert);
+				if (socket) {
+					handleSocketError(socket, showAlert);
+				}
 				navigate('/user/room');
 			} catch (error) {
 				console.log(error);
