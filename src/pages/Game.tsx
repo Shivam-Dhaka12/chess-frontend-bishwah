@@ -25,8 +25,6 @@ function Game() {
 	const { roomId } = useParams();
 
 	const authToken = useRecoilValue(authState).token;
-	let isLoggedIn = true;
-	if (!authToken || authToken === 'Invalid_Token') isLoggedIn = false;
 
 	const handleRoomEvent = (
 		msgFromServer: string,
@@ -39,50 +37,46 @@ function Game() {
 		});
 	};
 
-	if (isLoggedIn) {
-		const socket = getSocketInstance(authToken);
+	const socket = getSocketInstance(authToken);
 
-		if (socket) {
-			socket.on('room-joined', (msgFromServer: string) => {
-				handleRoomEvent(msgFromServer, 'primary');
-			});
-			socket.on('player-reconnecting', (msgFromServer: string) => {
-				handleRoomEvent(msgFromServer, 'secondary');
-			});
-			socket.on('player-reconnect', (msgFromServer: string) => {
-				handleRoomEvent(msgFromServer, 'secondary');
-			});
-			socket.on('player-disconnect', (msgFromServer: string) => {
-				handleRoomEvent(msgFromServer, 'error');
-			});
+	if (socket) {
+		socket.on('room-joined', (msgFromServer: string) => {
+			handleRoomEvent(msgFromServer, 'primary');
+		});
+		socket.on('player-reconnecting', (msgFromServer: string) => {
+			handleRoomEvent(msgFromServer, 'secondary');
+		});
+		socket.on('player-reconnect', (msgFromServer: string) => {
+			handleRoomEvent(msgFromServer, 'secondary');
+		});
+		socket.on('player-disconnect', (msgFromServer: string) => {
+			handleRoomEvent(msgFromServer, 'error');
+		});
 
-			socket.on('reconnect', (roomId: string) => {
-				console.log('reconnecting......' + roomId);
+		socket.on('reconnect', (roomId: string) => {
+			console.log('reconnecting......' + roomId);
 
-				console.log(
-					'reconnecting...' + socket.emit('room-join', roomId)
-				);
+			console.log('reconnecting...' + socket.emit('room-join', roomId));
 
-				socket.on('error', (msgFromServer) => {
-					showAlert({
-						show: true,
-						type: 'error',
-						msg: msgFromServer,
-					});
+			socket.on('error', (msgFromServer) => {
+				showAlert({
+					show: true,
+					type: 'error',
+					msg: msgFromServer,
 				});
-
-				socket.on('room-joined', (msgFromServer) => {
-					console.log('room-joined');
-					showAlert({
-						show: true,
-						type: 'primary',
-						msg: msgFromServer,
-					});
-				});
-
-				handleSocketError(socket, showAlert);
 			});
-		}
+
+			socket.on('room-joined', (msgFromServer) => {
+				console.log('room-joined');
+				showAlert({
+					show: true,
+					type: 'secondary',
+					msg: msgFromServer,
+				});
+			});
+
+			handleSocketError(socket, showAlert);
+		});
 	}
 
 	const makeAMove = useCallback(
@@ -90,7 +84,7 @@ function Game() {
 			try {
 				const result: Move = chess.move(move);
 				setFen(chess.fen());
-
+				socket?.emit('make-move', { move, roomId });
 				console.log(
 					`over : ${chess.isGameOver()}, checkmate : ${chess.isCheckmate()}`
 				);
@@ -114,7 +108,7 @@ function Game() {
 				return null;
 			}
 		},
-		[chess]
+		[chess, roomId, socket]
 	);
 
 	const onDrop = (sourceSquare: Square, targetSquare: Square): boolean => {
