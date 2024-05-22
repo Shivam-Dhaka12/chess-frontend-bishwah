@@ -8,7 +8,7 @@ import useShowAlert from '../hooks/useShowAlert';
 import { getSocketInstance, handleSocketError } from '../utils/socketManager';
 import { useRecoilValue } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface MoveData {
 	from: Square;
@@ -21,6 +21,7 @@ function Game() {
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
 	const showAlert = useShowAlert();
+	const navigate = useNavigate();
 
 	const { roomId } = useParams();
 
@@ -40,43 +41,22 @@ function Game() {
 	const socket = getSocketInstance(authToken);
 
 	if (socket) {
+		socket.emit('is-reconnecting', roomId);
+
 		socket.on('room-joined', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'primary');
 		});
 		socket.on('player-reconnecting', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'secondary');
 		});
-		socket.on('player-reconnect', (msgFromServer: string) => {
-			handleRoomEvent(msgFromServer, 'secondary');
+		socket.on('player-reconnected', (msgFromServer: string) => {
+			handleRoomEvent(msgFromServer, 'primary');
 		});
 		socket.on('player-disconnect', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'error');
 		});
 
-		socket.on('reconnect', (roomId: string) => {
-			console.log('reconnecting......' + roomId);
-
-			console.log('reconnecting...' + socket.emit('room-join', roomId));
-
-			socket.on('error', (msgFromServer) => {
-				showAlert({
-					show: true,
-					type: 'error',
-					msg: msgFromServer,
-				});
-			});
-
-			socket.on('room-joined', (msgFromServer) => {
-				console.log('room-joined');
-				showAlert({
-					show: true,
-					type: 'secondary',
-					msg: msgFromServer,
-				});
-			});
-
-			handleSocketError(socket, showAlert);
-		});
+		handleSocketError(socket, showAlert, navigate, '/user/room');
 	}
 
 	const makeAMove = useCallback(

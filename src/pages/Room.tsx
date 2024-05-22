@@ -125,6 +125,7 @@ function JoinRoomForm({ onSetForm }: FormProps) {
 					msg: msgFromServer,
 				});
 				navigate('/user/game/' + roomId);
+				console.log('after nav');
 			});
 
 			handleSocketError(socket, showAlert);
