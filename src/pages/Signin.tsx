@@ -8,7 +8,8 @@ import { useRequest } from '../hooks/useRequest';
 import { userState } from '../recoil/atoms/User';
 import { getSocketInstance, handleSocketError } from '../utils/socketManager';
 import useShowAlert from '../hooks/useShowAlert';
-import tokenManager from '../utils/TokenManager';
+import TokenManager from '../utils/TokenManager';
+import UserManager from '../utils/UserManager';
 
 function Login() {
 	const navigate = useNavigate();
@@ -35,7 +36,8 @@ function Login() {
 		);
 		if (response) {
 			const { token, username } = response.data;
-			tokenManager.set(token);
+			TokenManager.set(token);
+			UserManager.set(username);
 			setAuthState({ token });
 			setUserState({ username });
 

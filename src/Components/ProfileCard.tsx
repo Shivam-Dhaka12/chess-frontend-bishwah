@@ -8,12 +8,14 @@ import { useRequest } from '../hooks/useRequest';
 import { useNavigate } from 'react-router-dom';
 import { deleteSocketInstance } from '../utils/socketManager';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
+import UserManager from '../utils/UserManager';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);
 	const setAuthState = useSetRecoilState(authState);
+	const setUserState = useSetRecoilState(userState);
 	const showAlert = useShowAlert();
-	const user = useRecoilValue(userState);
+	const user = useRecoilValue(userState).username;
 	const token = useRecoilValue(authState).token;
 	const { sendRequest, loading } = useRequest();
 
@@ -48,34 +50,23 @@ export default function ProfileCard() {
 			token, // Include the token in the Authorization header
 		};
 
-		const response = await sendRequest(
-			url,
-			postInputs,
-			successMsg,
-			headers
-		);
+		await sendRequest(url, postInputs, successMsg, headers);
 
-		if (!response?.data.success) {
-			showAlert({
-				show: true,
-				type: 'error',
-				msg:
-					'Error: ' + response?.data.message ||
-					'Something went wrong',
-			});
-		} else {
-			TokenManager.remove();
-			setAuthState({
-				token: '',
-			});
-			deleteSocketInstance();
-			showAlert({
-				show: true,
-				type: 'primary',
-				msg: successMsg,
-			});
-			navigate(onSuccessUrl);
-		}
+		TokenManager.remove();
+		setAuthState({
+			token: '',
+		});
+		UserManager.remove();
+		setUserState({
+			username: 'Test_User',
+		});
+		deleteSocketInstance();
+		showAlert({
+			show: true,
+			type: 'primary',
+			msg: successMsg,
+		});
+		navigate(onSuccessUrl);
 	}
 
 	return (
@@ -95,7 +86,7 @@ export default function ProfileCard() {
 							className="rounded-full mx-auto absolute w-18 -top-6 sm:-top-10 sm:w-24 left-1/2 -translate-x-1/2"
 						/>
 						<div className="font-semibold text-slate-50 text-sm  mt-2 text-center">
-							{user.username}
+							{user}
 						</div>
 						<div className="mt-8 max-w-64 text-center  mx-auto  border-white border shadow-sm p-4 rounded-lg flex justify-around text-slate-100 text-2xl">
 							<div>
@@ -122,7 +113,7 @@ export default function ProfileCard() {
 								<span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
 									Email:
 								</span>{' '}
-								{user.username}
+								{user}
 							</p>
 							<p>
 								<span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">

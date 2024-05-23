@@ -7,7 +7,8 @@ export default function Landing() {
 	const authToken = useRecoilValue(authState).token;
 	let isLoggedIn = true;
 	if (!authToken || authToken === 'Invalid_Token') isLoggedIn = false;
-	console.log(isLoggedIn, authToken);
+	console.log('Logged in:', isLoggedIn);
+	console.log('Auth Token:', authToken || 'Invalid_Token');
 
 	return (
 		<>

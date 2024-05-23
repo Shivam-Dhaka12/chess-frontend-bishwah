@@ -29,10 +29,11 @@ export function useRequest() {
 
 			return response;
 		} catch (error) {
-			console.log(error);
 			let errorMsg = 'Something went wrong';
-			if (error instanceof Error) {
-				errorMsg = error.message;
+
+			if (isAxiosError(error)) {
+				errorMsg = error.message + ': Server unreachable';
+				console.log('HUHU ' + errorMsg);
 			}
 			if (isAxiosError(error) && error.response) {
 				errorMsg = error.response.data.message;
