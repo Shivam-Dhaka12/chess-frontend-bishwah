@@ -53,7 +53,8 @@ function Game() {
 			handleRoomEvent(msgFromServer, 'primary');
 		});
 		socket.on('player-disconnect', (msgFromServer: string) => {
-			handleRoomEvent(msgFromServer, 'error');
+			handleRoomEvent(msgFromServer, 'primary');
+			navigate('/');
 		});
 
 		handleSocketError(socket, showAlert, navigate, '/user/room');
