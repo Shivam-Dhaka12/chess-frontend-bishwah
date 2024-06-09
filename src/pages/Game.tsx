@@ -26,6 +26,7 @@ function Game() {
 	const { roomId } = useParams();
 
 	const authToken = useRecoilValue(authState).token;
+	const socket = getSocketInstance(authToken);
 
 	const handleRoomEvent = (
 		msgFromServer: string,
@@ -38,7 +39,17 @@ function Game() {
 		});
 	};
 
-	const socket = getSocketInstance(authToken);
+	function handleResign() {
+		if (socket) {
+			socket.emit('resign');
+		}
+		showAlert({
+			show: true,
+			type: 'primary',
+			msg: 'You resigned, better luck next time 🍀',
+		});
+		navigate('/');
+	}
 
 	if (socket) {
 		socket.emit('is-reconnecting', roomId);
@@ -135,6 +146,7 @@ function Game() {
 				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
 					Player <span className="text-sky-500">2</span>
 				</p>
+				<button onClick={handleResign}>Resign</button>
 			</div>
 			<Chat />
 			<CustomDialog
