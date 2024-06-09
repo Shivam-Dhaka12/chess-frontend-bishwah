@@ -1,5 +1,5 @@
 import { Chess, Color, Move, Square } from 'chess.js';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import CustomDialog from '../Components/CustomDialog';
 import Chat from '../Components/Chat';
@@ -9,6 +9,8 @@ import { getSocketInstance, handleSocketError } from '../utils/socketManager';
 import { useRecoilValue } from 'recoil';
 import { authState } from '../recoil/atoms/Auth';
 import { useNavigate, useParams } from 'react-router-dom';
+import { userState } from '../recoil/atoms/User';
+import { BoardOrientation } from 'react-chessboard/dist/chessboard/types';
 
 interface MoveData {
 	from: Square;
@@ -16,28 +18,28 @@ interface MoveData {
 	color: Color;
 }
 
+interface Player {
+	playerId: string;
+	playerName: string;
+	playerColor: 'white' | 'black';
+}
+
 function Game() {
 	const chess = useMemo<Chess>(() => new Chess(), []);
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
+	const [opponent, setOpponent] = useState<Player | null>(null);
+	const [playerColor, setPlayerColor] = useState<
+		BoardOrientation | undefined
+	>(undefined);
 	const showAlert = useShowAlert();
 	const navigate = useNavigate();
+	const username = useRecoilValue(userState).username;
 
 	const { roomId } = useParams();
 
 	const authToken = useRecoilValue(authState).token;
 	const socket = getSocketInstance(authToken);
-
-	const handleRoomEvent = (
-		msgFromServer: string,
-		alertType: 'primary' | 'error' | 'secondary'
-	) => {
-		showAlert({
-			show: true,
-			type: alertType,
-			msg: msgFromServer,
-		});
-	};
 
 	function handleResign() {
 		if (socket) {
@@ -51,23 +53,52 @@ function Game() {
 		navigate('/');
 	}
 
-	if (socket) {
-		socket.emit('is-reconnecting', roomId);
-
-		socket.on('room-joined', (msgFromServer: string) => {
-			handleRoomEvent(msgFromServer, 'primary');
+	const handleRoomEvent = (
+		msgFromServer: string,
+		alertType: 'primary' | 'error' | 'secondary'
+	) => {
+		showAlert({
+			show: true,
+			type: alertType,
+			msg: msgFromServer,
 		});
+	};
+
+	useEffect(() => {
+		if (socket) {
+			socket.emit('room-join', roomId);
+			return () => {
+				socket.off('room-join');
+			};
+		}
+	}, [roomId, socket]);
+
+	if (socket) {
+		socket.on(
+			'room-joined',
+			({
+				msgFromServer,
+				players,
+			}: {
+				msgFromServer: string;
+				players: [Player];
+			}) => {
+				console.log('Players: ' + players);
+				players.map((player: Player) => {
+					if (player.playerName === username)
+						setPlayerColor(player.playerColor);
+					else setOpponent(player);
+				});
+				handleRoomEvent(msgFromServer, 'primary');
+			}
+		);
 		socket.on('player-reconnecting', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'secondary');
-		});
-		socket.on('player-reconnected', (msgFromServer: string) => {
-			handleRoomEvent(msgFromServer, 'primary');
 		});
 		socket.on('player-disconnect', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'primary');
 			navigate('/');
 		});
-
 		handleSocketError(socket, showAlert, navigate, '/user/room');
 	}
 
@@ -121,19 +152,23 @@ function Game() {
 
 	return (
 		<div className="w-full justify-center flex">
-			<CopyLink link="http://localhost:3000" />
+			<CopyLink roomId={roomId || 'error'} link={window.location.href} />
 			<div className="w-full max-w-80 sm:max-w-96 md:max-w-sm  h-full  ">
 				<p className="font-bold text-lg sm:text-xl lg:text-2xl tracking-tight text-center text-white mb-6 md:mb-10">
 					R<span className="text-sky-500">oo</span>m{' '}
 					<span className="text-sky-500">:</span> {roomId}
 				</p>
-				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
-					Player <span className="text-sky-500">1</span>
+				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl text-center">
+					Opponent:{' '}
+					<span className="text-sky-500">
+						{opponent?.playerName || 'Yet to join'}
+					</span>
 				</p>
 				<div className="rounded-lg overflow-x-clip border border-slate-700 shadow-md">
 					<Chessboard
 						position={fen}
 						onPieceDrop={onDrop}
+						boardOrientation={playerColor}
 						customDarkSquareStyle={{
 							backgroundColor: '#475569',
 						}}
@@ -143,10 +178,15 @@ function Game() {
 						showBoardNotation
 					/>
 				</div>
-				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl">
-					Player <span className="text-sky-500">2</span>
+				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl text-center">
+					You: <span className="text-sky-500">{username}</span>
 				</p>
-				<button onClick={handleResign}>Resign</button>
+				<a
+					onClick={handleResign}
+					className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg mx-auto max-w-32 flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
+				>
+					Resign
+				</a>
 			</div>
 			<Chat />
 			<CustomDialog

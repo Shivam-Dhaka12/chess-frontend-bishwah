@@ -36,13 +36,20 @@ const handleSocketError = (
 	navigate?: NavigateFunction,
 	navigateTo?: string
 ) => {
-	socket.on('error', (error: { message: string }) => {
+	socket.on('error', (error: { message: string; navigateURL: string }) => {
 		// Display an alert with the error message
 		showAlert({
 			show: true,
 			type: 'error',
 			msg: 'Error: ' + error.message,
 		});
+
+		if (navigate && error.navigateURL) {
+			// Redirect the user to the navigateTo page
+			console.log('inside navigate');
+			navigateTo = navigateTo || '/';
+			navigate(error.navigateURL);
+		}
 	});
 
 	socket.on('reconnect-error', (error: { message: string }) => {

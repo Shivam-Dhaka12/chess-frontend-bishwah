@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import useShowAlert from '../hooks/useShowAlert';
-export default function CopyLink({ link }: { link: string }) {
+export default function CopyLink({
+	roomId,
+	link,
+}: {
+	roomId: string;
+	link: string;
+}) {
 	const [isOpen, setIsOpen] = useState(true);
 	const showAlert = useShowAlert();
 	//
@@ -27,7 +33,7 @@ export default function CopyLink({ link }: { link: string }) {
 							type="button"
 							className="font-light absolute top-4 left-6 sm:left-10 text-slate-300 text-sm"
 						>
-							ID: {5432}
+							Room Id: {roomId}
 						</button>
 						<div className="flex-grow flex flex-col justify-center">
 							<div className="font-light text-md my-2 text-slate-300 px-2">
@@ -43,7 +49,7 @@ export default function CopyLink({ link }: { link: string }) {
 								<img
 									src="/copy.png"
 									alt="copy button"
-									className="transform transition-transform w-10 h-10 cursor-pointer hover:scale-110 active:scale-95"
+									className="transform transition-transform w-8 h-8 cursor-pointer hover:scale-110 active:scale-95"
 									onClick={() => copyToClipboard(link)}
 								/>
 							</div>
