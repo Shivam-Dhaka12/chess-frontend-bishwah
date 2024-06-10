@@ -24,11 +24,18 @@ interface Player {
 	playerColor: 'white' | 'black';
 }
 
+interface RoomState {
+	board: string;
+	moves: string[];
+	players: Player[];
+}
+
 function Game() {
-	const chess = useMemo<Chess>(() => new Chess(), []);
+	const [chess, setChess] = useState<Chess>(new Chess());
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
+	// const [roomState, setRoomState] = useState<RoomState>();
 	const [playerColor, setPlayerColor] = useState<
 		BoardOrientation | undefined
 	>(undefined);
@@ -78,13 +85,19 @@ function Game() {
 			'room-joined',
 			({
 				msgFromServer,
-				players,
+				roomState,
 			}: {
 				msgFromServer: string;
-				players: [Player];
+				roomState: RoomState;
 			}) => {
-				console.log('Players: ' + players);
-				players.map((player: Player) => {
+				//setRoomState(roomState);
+				console.log('Fen from Server: ' + roomState.board);
+				// Reinitialize Chess instance with the received FEN
+				const newChess = new Chess(roomState.board);
+				setChess(newChess);
+				setFen(roomState.board || fen);
+
+				roomState.players.map((player: Player) => {
 					if (player.playerName === username)
 						setPlayerColor(player.playerColor);
 					else setOpponent(player);
@@ -99,6 +112,29 @@ function Game() {
 			handleRoomEvent(msgFromServer, 'primary');
 			navigate('/');
 		});
+		socket.on(
+			'player-move',
+			({
+				move,
+				username: playerName,
+			}: {
+				move: MoveData;
+				username: string;
+			}) => {
+				if (playerName !== username) {
+					const result: Move | null = makeAMove(move);
+					if (result) {
+						const newFen = chess.fen();
+						setFen(newFen);
+						console.log('Updated FEN: ' + newFen);
+						const { from, to, color } = move;
+						console.log(
+							'Player move: ' + from + ' ' + to + ' ' + color
+						);
+					}
+				}
+			}
+		);
 		handleSocketError(socket, showAlert, navigate, '/user/room');
 	}
 
@@ -106,8 +142,7 @@ function Game() {
 		(move: MoveData): Move | null => {
 			try {
 				const result: Move = chess.move(move);
-				setFen(chess.fen());
-				socket?.emit('make-move', { move, roomId });
+				console.log('Making a move: ' + JSON.stringify(result));
 				console.log(
 					`over : ${chess.isGameOver()}, checkmate : ${chess.isCheckmate()}`
 				);
@@ -131,7 +166,7 @@ function Game() {
 				return null;
 			}
 		},
-		[chess, roomId, socket]
+		[chess]
 	);
 
 	const onDrop = (sourceSquare: Square, targetSquare: Square): boolean => {
@@ -142,6 +177,13 @@ function Game() {
 		};
 
 		const move: Move | null = makeAMove(moveData);
+		if (move) {
+			const newFen = chess.fen();
+			setFen(newFen);
+			console.log('Sending FEN: ' + newFen);
+			console.log('Sending RoomId: ' + roomId);
+			socket?.emit('make-move', { move, fen: newFen, roomId });
+		}
 
 		if (move === null) {
 			return false;
@@ -186,6 +228,9 @@ function Game() {
 					className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg mx-auto max-w-32 flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400"
 				>
 					Resign
+				</a>
+				<a className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg mx-auto max-w-32 flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400">
+					Reset
 				</a>
 			</div>
 			<Chat />
