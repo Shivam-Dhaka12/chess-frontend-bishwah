@@ -105,7 +105,7 @@ const Chat = () => {
 				<img
 					src="/chat.png"
 					alt="chat button"
-					className="absolute cursor-pointer bottom-6 right-10"
+					className="fixed cursor-pointer bottom-6 right-6"
 					onClick={() => setIsOpen((prev) => !prev)}
 				/>
 			</div>
@@ -144,14 +144,14 @@ function ChatBox() {
 	return (
 		<>
 			{showEmojiPicker && (
-				<div className="absolute bottom-40 right-6 z-30">
+				<div className="fixed bottom-40 right-2 z-30">
 					<EmojiPickerComponent onSelect={handleEmojiSelect} />
 				</div>
 			)}
 			<form
 				id="form"
 				action=""
-				className=" bg-slate-900 rounded-lg h-96 text-sm absolute bottom-28 right-10 z-20 w-80 overflow-clip transition-all shadow"
+				className=" bg-slate-900 rounded-lg h-96 text-sm fixed bottom-28 right-6 z-20 w-80 overflow-clip transition-all shadow"
 				onSubmit={(e) => handleSubmit(e, socket)}
 			>
 				<h1 className="text-slate-200 bg-slate-900 pl-8 py-4 font-semibold shadow-md border border-slate-800">

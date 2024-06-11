@@ -1,5 +1,5 @@
 import { Chess, Color, Move, Square } from 'chess.js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import CustomDialog from '../Components/CustomDialog';
 import Chat from '../Components/Chat';
@@ -34,6 +34,8 @@ function Game() {
 	const [chess, setChess] = useState<Chess>(new Chess());
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
+	// 0 is for white, 1 is for black and 2 is for draw
+	const [result, setResult] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
 	// const [roomState, setRoomState] = useState<RoomState>();
 	const [playerColor, setPlayerColor] = useState<
@@ -91,11 +93,13 @@ function Game() {
 				roomState: RoomState;
 			}) => {
 				//setRoomState(roomState);
-				console.log('Fen from Server: ' + roomState.board);
-				// Reinitialize Chess instance with the received FEN
-				const newChess = new Chess(roomState.board);
-				setChess(newChess);
-				setFen(roomState.board || fen);
+				// Reinitialize Chess instance with the received FEN if not empty
+				if (roomState.board !== '' && roomState.board !== null) {
+					console.log('Fen from Server: ' + roomState.board);
+					const newChess = new Chess(roomState.board);
+					setChess(newChess);
+					setFen(roomState.board);
+				}
 
 				roomState.players.map((player: Player) => {
 					if (player.playerName === username)
@@ -106,6 +110,9 @@ function Game() {
 			}
 		);
 		socket.on('player-reconnecting', (msgFromServer: string) => {
+			handleRoomEvent(msgFromServer, 'secondary');
+		});
+		socket.on('player-reconnected', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'secondary');
 		});
 		socket.on('player-disconnect', (msgFromServer: string) => {
@@ -150,14 +157,20 @@ function Game() {
 				if (chess.isGameOver()) {
 					if (chess.isCheckmate()) {
 						setOver(
-							`CHECKMATE!!! ${
+							`Checkmate 😉, ${
 								chess.turn() === 'w' ? 'BLACK' : 'WHITE'
-							} WINS THE GAME`
+							} won the game 🎉`
 						);
+						if (chess.turn() === 'w') {
+							setResult('1');
+						} else if (chess.turn() === 'b') {
+							setResult('0');
+						}
 					} else if (chess.isDraw()) {
-						setOver(`DRAW HAS HAPPENED`);
+						setOver(`It's a draw 🤝`);
+						setResult('2');
 					} else {
-						setOver('GAME OVER!!!');
+						setOver('Game Over ✌️');
 					}
 				}
 
@@ -220,7 +233,7 @@ function Game() {
 						showBoardNotation
 					/>
 				</div>
-				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl text-center">
+				<p className="p-4 mb-4 text-slate-50 font-bold text-lg md:text-2xl text-center">
 					You: <span className="text-sky-500">{username}</span>
 				</p>
 				<a
@@ -229,16 +242,20 @@ function Game() {
 				>
 					Resign
 				</a>
-				<a className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg mx-auto max-w-32 flex items-center justify-center sm:w-auto bg-sky-500 highlight-white/20 hover:bg-sky-400">
-					Reset
-				</a>
 			</div>
 			<Chat />
 			<CustomDialog
 				open={Boolean(over)}
-				title={over}
+				title={'Game Over ✌️'}
 				contentText={over}
-				handleContinue={() => setOver('')}
+				handleContinue={() => {
+					setOver('');
+					navigate('/');
+					socket?.emit('game-over', {
+						roomId,
+						result,
+					});
+				}}
 			/>
 		</div>
 	);

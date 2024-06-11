@@ -15,6 +15,7 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="bg-gradient-to-b from-slate-950 to-slate-800 min-h-screen flex flex-col  pt-4 sm:pt-6 px-6 md:px-8 scroll-auto text-slate-50">
 			{/*navbar*/}
+
 			<div className="flex justify-between items-baseline">
 				<div
 					onClick={() => navigate('/')}
@@ -27,6 +28,7 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
 				{isLoggedIn && <ProfileCard />}
 				{alert.show && <Alert />}
 			</div>
+
 			{/*main content*/}
 			<div className="flex-grow flex items-center justify-center">
 				{children}
