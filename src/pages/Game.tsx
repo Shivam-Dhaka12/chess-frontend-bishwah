@@ -28,12 +28,21 @@ interface RoomState {
 	board: string;
 	moves: string[];
 	players: Player[];
+	messages: Message[];
+}
+
+interface Message {
+	message: string;
+	id: string;
+	color: string;
 }
 
 function Game() {
 	const [chess, setChess] = useState<Chess>(new Chess());
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
+	const [newMessages, setNewMessages] = useState(false);
+	const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
 	// 0 is for white, 1 is for black and 2 is for draw
 	const [result, setResult] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
@@ -101,6 +110,9 @@ function Game() {
 					setFen(roomState.board);
 				}
 
+				if (roomState.messages) {
+					setReceivedMessages(roomState.messages);
+				}
 				roomState.players.map((player: Player) => {
 					if (player.playerName === username)
 						setPlayerColor(player.playerColor);
@@ -109,6 +121,10 @@ function Game() {
 				handleRoomEvent(msgFromServer, 'primary');
 			}
 		);
+		socket.on('message', (messaages: Message[]) => {
+			setNewMessages(true);
+			setReceivedMessages(() => messaages);
+		});
 		socket.on('player-reconnecting', (msgFromServer: string) => {
 			handleRoomEvent(msgFromServer, 'secondary');
 		});
@@ -189,6 +205,14 @@ function Game() {
 			color: chess.turn(),
 		};
 
+		// Check if the current player is allowed to move the piece
+		if (
+			(playerColor === 'white' && moveData.color !== 'w') ||
+			(playerColor === 'black' && moveData.color !== 'b')
+		) {
+			return false;
+		}
+
 		const move: Move | null = makeAMove(moveData);
 		if (move) {
 			const newFen = chess.fen();
@@ -243,7 +267,15 @@ function Game() {
 					Resign
 				</a>
 			</div>
-			<Chat />
+			<Chat
+				playerColor={playerColor || 'w'}
+				opponentName={opponent?.playerName || 'Opponent'}
+				socket={socket}
+				messagesReceived={receivedMessages}
+				roomId={roomId || '123'}
+				newMessages={newMessages}
+				setNewMessages={setNewMessages}
+			/>
 			<CustomDialog
 				open={Boolean(over)}
 				title={'Game Over ✌️'}

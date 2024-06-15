@@ -1,113 +1,58 @@
-import { Socket } from 'socket.io-client';
 import React, { useRef, useEffect, useState } from 'react';
-import io from 'socket.io-client';
 import EmojiPickerComponent from './EmojiPicker';
+import { Socket } from 'socket.io-client';
 
-const useSocket = () => {
-	const [receivedMessages, setReceivedMessages] = useState<
-		{ msg: string; id: number; msg_id: number }[]
-	>([
-		{
-			msg: 'hi asdf;aksdf sdf\n asdf;ljka\nsd;fjkas;djf\nasdfl;ljasdl;flaslddf',
-			id: 1,
-			msg_id: 1256184834,
-		},
-		{
-			msg: 'hi asdf;aksdf sdf\n asdf;jasdl;flaslddf',
-			id: 1,
-			msg_id: 12354375374,
-		},
-		{
-			msg: 'hi asdf;aksdf sdf\n asdfflaslddf',
-			id: 1,
-			msg_id: 175637453234,
-		},
-		{
-			msg: 'hi asdf;aksdf sdf\n asdfflaslddf',
-			id: 1,
-			msg_id: 17563745353234,
-		},
-		{
-			msg: 'hi asdf;aksdf sdf\n asdfflaslddf',
-			id: 1,
-			msg_id: 17565364353234,
-		},
-		{
-			msg: 'hello',
-			id: 2,
-			msg_id: 1254245234,
-		},
-		{
-			msg: 'hurray',
-			id: 1,
-			msg_id: 123424524524,
-		},
-		{
-			msg: 'hello',
-			id: 2,
-			msg_id: 125452245234,
-		},
-	]);
-	const [messageInput, setMessageInput] = useState<string>('');
-	const [socket, setSocket] = useState<Socket | null>(null);
+interface Message {
+	message: string;
+	id: string;
+	color: string;
+}
 
-	const handleSubmit = (
-		event: React.FormEvent<HTMLFormElement>,
-		socket: Socket | null
-	) => {
-		event.preventDefault();
-		if (messageInput && socket) {
-			// Send the message to the server
-			socket.emit('message', messageInput);
-
-			// Clear the input field
-			setMessageInput('');
-		}
-		553;
-	};
-
-	useEffect(() => {
-		const newSocket: Socket = io('http://192.168.1.2:3000');
-
-		// Connect to the Socket.IO server
-		newSocket.on('connect', () => {
-			console.log('Connected to Socket.IO server');
-			setSocket(newSocket);
-		});
-
-		newSocket.on('message', (msg) => {
-			console.log(`Received message: ${msg}`);
-			setReceivedMessages((prevState) => [...prevState, msg]);
-		});
-
-		// Cleanup on component unmount
-		return () => {
-			newSocket.disconnect();
-		};
-	}, []);
-
-	return {
-		socket,
-		receivedMessages,
-		messageInput,
-		setMessageInput,
-		handleSubmit,
-	};
-};
-
-const Chat = () => {
+const Chat = ({
+	playerColor,
+	opponentName,
+	socket,
+	messagesReceived,
+	roomId,
+	newMessages,
+	setNewMessages,
+}: {
+	playerColor: string;
+	opponentName: string;
+	socket: Socket | undefined;
+	messagesReceived: Message[];
+	roomId: string;
+	newMessages: boolean;
+	setNewMessages: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
 		<>
 			<div>
-				{isOpen && <ChatBox />}
+				{isOpen && (
+					<ChatBox
+						playerColor={playerColor}
+						opponentName={opponentName}
+						socket={socket}
+						messagesReceived={messagesReceived}
+						roomId={roomId}
+					/>
+				)}
 				<img
 					src="/chat.png"
 					alt="chat button"
 					className="fixed cursor-pointer bottom-6 right-6"
-					onClick={() => setIsOpen((prev) => !prev)}
+					onClick={() => {
+						setIsOpen((prev) => !prev);
+						setNewMessages(false);
+					}}
 				/>
+				{newMessages && !isOpen && (
+					<div className="fixed cursor-pointer bottom-16 right-8">
+						<div className="absolute inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900"></div>
+					</div>
+				)}
 			</div>
 		</>
 	);
@@ -115,22 +60,51 @@ const Chat = () => {
 
 export default Chat;
 
-function ChatBox() {
-	const {
-		socket,
-		receivedMessages,
-		messageInput,
-		setMessageInput,
-		handleSubmit,
-	} = useSocket();
-
-	const lastMessageRef = useRef(null);
+function ChatBox({
+	playerColor,
+	opponentName,
+	socket,
+	messagesReceived,
+	roomId,
+}: {
+	playerColor: string;
+	opponentName: string;
+	socket: Socket | undefined;
+	messagesReceived: Message[];
+	roomId: string;
+}) {
+	const [messageInput, setMessageInput] = useState<string>('');
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const messages = messagesReceived;
+	const lastMessageRef = useRef(null);
+
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (messageInput && socket) {
+			// Send the message to the server
+			socket.emit('message', {
+				message: {
+					id: generateRandomId(),
+					message: messageInput,
+					color: playerColor,
+				},
+				roomId,
+			});
+			// Clear the input field
+			setMessageInput('');
+		}
+	};
 
 	const handleEmojiSelect = (emoji: { native: string }) => {
 		setMessageInput((prevInputValue) => prevInputValue + emoji.native);
 		setShowEmojiPicker(false);
 	};
+
+	function generateRandomId(): string {
+		const timestamp = Date.now().toString(36); // Convert current timestamp to base 36
+		const randomString = Math.random().toString(36).substring(2, 10); // Generate random string
+		return timestamp + randomString;
+	}
 
 	useEffect(() => {
 		// Scroll to the last message when messages change
@@ -139,7 +113,7 @@ function ChatBox() {
 				behavior: 'smooth',
 			});
 		}
-	}, [receivedMessages]);
+	}, [messages]);
 
 	return (
 		<>
@@ -152,26 +126,32 @@ function ChatBox() {
 				id="form"
 				action=""
 				className=" bg-slate-900 rounded-lg h-96 text-sm fixed bottom-28 right-6 z-20 w-80 overflow-clip transition-all shadow"
-				onSubmit={(e) => handleSubmit(e, socket)}
+				onSubmit={(e) => handleSubmit(e)}
 			>
 				<h1 className="text-slate-200 bg-slate-900 pl-8 py-4 font-semibold shadow-md border border-slate-800">
-					Player Name
+					{opponentName}
 				</h1>
 				<div id="messages">
 					<ul className="p-4 overflow-y-scroll scroll-smooth h-72 scroll-p-0 scroll-m-0 no-scrollbar">
-						{receivedMessages.map((msg, index) => (
+						{messages.map((messaage, index) => (
 							<div
-								key={msg.msg_id}
+								key={messaage.id}
 								ref={
-									index === receivedMessages.length - 1
+									index === messages.length - 1
 										? lastMessageRef
 										: null
 								}
 								className={`flex ${
-									msg.id === 2 ? 'justify-end' : ''
+									messaage.color === playerColor
+										? 'justify-end'
+										: ''
 								}`}
 							>
-								<ChatMsg msg={msg.msg} id={msg.id} />
+								<ChatMsg
+									message={messaage.message}
+									color={messaage.color}
+									playerColor={playerColor}
+								/>
 							</div>
 						))}
 					</ul>
@@ -202,15 +182,25 @@ function ChatBox() {
 	);
 }
 
-function ChatMsg({ msg, id }: { msg: string; id: number }) {
+function ChatMsg({
+	message,
+	color,
+	playerColor,
+}: {
+	message: string;
+	color: string;
+	playerColor: string;
+}) {
 	return (
-		<div className={`my-1 max-w-56  `}>
+		<div className={`my-1 max-w-full  `}>
 			<div
 				className={`text-white ${
-					id === 1 ? 'bg-sky-600' : 'bg-slate-600'
-				} px-4 py-2 rounded-2xl inline-block`}
+					color === playerColor
+						? 'bg-sky-600 float-right'
+						: 'bg-slate-600 float-left'
+				} px-4 py-2 rounded-2xl inline-block `}
 			>
-				{msg} {id}
+				{message}
 			</div>
 		</div>
 	);
