@@ -1,5 +1,5 @@
 import { Chess, Color, Move, Square } from 'chess.js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import CustomDialog from '../Components/CustomDialog';
 import Chat from '../Components/Chat';
@@ -35,6 +35,8 @@ function Game() {
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
+	const [validMoves, setValidMoves] = useState<string[]>([]);
+	const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 	// const [roomState, setRoomState] = useState<RoomState>();
 	const [playerColor, setPlayerColor] = useState<
 		BoardOrientation | undefined
@@ -92,10 +94,12 @@ function Game() {
 			}) => {
 				//setRoomState(roomState);
 				console.log('Fen from Server: ' + roomState.board);
-				// Reinitialize Chess instance with the received FEN
-				const newChess = new Chess(roomState.board);
-				setChess(newChess);
-				setFen(roomState.board || fen);
+				// Reinitialize Chess instance with the received FEN if valid FEN
+				if (roomState.board !== '') {
+					const newChess = new Chess(roomState.board);
+					setChess(newChess);
+					setFen(roomState.board);
+				}
 
 				roomState.players.map((player: Player) => {
 					if (player.playerName === username)
@@ -166,7 +170,7 @@ function Game() {
 				return null;
 			}
 		},
-		[chess]
+		[chess, playerColor]
 	);
 
 	const onDrop = (sourceSquare: Square, targetSquare: Square): boolean => {
@@ -175,6 +179,14 @@ function Game() {
 			to: targetSquare,
 			color: chess.turn(),
 		};
+
+		// Check if the current player is allowed to move the piece
+		if (
+			(playerColor === 'white' && moveData.color !== 'w') ||
+			(playerColor === 'black' && moveData.color !== 'b')
+		) {
+			return false;
+		}
 
 		const move: Move | null = makeAMove(moveData);
 		if (move) {
@@ -190,6 +202,19 @@ function Game() {
 		}
 
 		return true;
+	};
+
+	const onSquareClick = (square: Square) => {
+		if (selectedSquare === square) {
+			setSelectedSquare(null);
+			setValidMoves([]);
+			return;
+		}
+
+		const moves = chess.moves({ square, verbose: true });
+		const validMoves = moves.map((move) => move.to);
+		setSelectedSquare(square);
+		setValidMoves(validMoves);
 	};
 
 	return (
@@ -218,7 +243,15 @@ function Game() {
 							backgroundColor: '#E2E8F0',
 						}}
 						showBoardNotation
+						onSquareClick={onSquareClick}
 					/>
+					{validMoves.map((move) => (
+						<div
+							key={move}
+							className="valid-move-square"
+							style={{ position: 'absolute', top: 0, left: 0 }}
+						/>
+					))}
 				</div>
 				<p className="p-4  text-slate-50 font-bold text-lg md:text-2xl text-center">
 					You: <span className="text-sky-500">{username}</span>

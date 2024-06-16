@@ -15,7 +15,7 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="bg-gradient-to-b from-slate-950 to-slate-800 min-h-screen flex flex-col  pt-4 sm:pt-6 px-6 md:px-8 scroll-auto text-slate-50">
 			{/*navbar*/}
-			<div className="flex justify-between items-baseline">
+			<div className="flex justify-between items-center">
 				<div
 					onClick={() => navigate('/')}
 					className=" cursor-pointer relative flex justify-items-start items-baseline font-bold tracking-tight text-lg leading-6"

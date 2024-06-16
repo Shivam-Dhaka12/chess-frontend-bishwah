@@ -18,8 +18,12 @@ export default function ProfileCard() {
 	const user = useRecoilValue(userState).username;
 	const token = useRecoilValue(authState).token;
 	const { sendRequest, loading } = useRequest();
-
 	const navigate = useNavigate();
+
+	const initials = user
+		.split(' ')
+		.map((name) => name.charAt(0).toUpperCase())
+		.join('');
 
 	async function handleLogout() {
 		setIsOpen(false);
@@ -80,11 +84,14 @@ export default function ProfileCard() {
 							className="w-4 h-4 cursor-pointer absolute top-4 right-4 hover:scale-110 "
 							onClick={() => setIsOpen(false)}
 						/>
-						<img
-							alt="profile image"
-							src="/profile_image.png"
-							className="rounded-full mx-auto absolute w-18 -top-6 sm:-top-10 sm:w-24 left-1/2 -translate-x-1/2"
-						/>
+						<div className="flex justify-center">
+							<div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full mx-auto">
+								<span className="font-medium text-gray-600">
+									{initials}
+								</span>
+							</div>
+						</div>
+
 						<div className="font-semibold text-slate-50 text-sm  mt-2 text-center">
 							{user}
 						</div>
@@ -134,13 +141,14 @@ export default function ProfileCard() {
 				</div>
 			) : (
 				<div className="">
-					<img
-						alt="profile image"
-						className="cursor-pointer rounded-full "
-						src="/profile_image.png"
-						width={35}
+					<div
+						className="relative inline-flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-100 rounded-full cursor-pointer"
 						onClick={() => setIsOpen(true)}
-					/>
+					>
+						<span className="font-medium text-gray-600">
+							{initials}
+						</span>
+					</div>
 				</div>
 			)}
 		</div>
