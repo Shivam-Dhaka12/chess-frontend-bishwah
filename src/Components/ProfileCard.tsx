@@ -99,19 +99,19 @@ export default function ProfileCard() {
 							<div>
 								23
 								<div className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
-									wins
+									Wins
 								</div>
 							</div>
 							<div>
-								23
+								02
 								<div className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
-									wins
+									Losses
 								</div>
 							</div>
 							<div>
-								23
+								05
 								<div className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
-									wins
+									Draws
 								</div>
 							</div>
 						</div>
@@ -121,12 +121,6 @@ export default function ProfileCard() {
 									Email:
 								</span>{' '}
 								{user}
-							</p>
-							<p>
-								<span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
-									UserId:
-								</span>{' '}
-								shivam12dhaka@!1852
 							</p>
 						</div>
 						<div>

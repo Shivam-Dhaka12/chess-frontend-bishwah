@@ -27,6 +27,7 @@ export default function Wrapper({ children }: { children: React.ReactNode }) {
 				{isLoggedIn && <ProfileCard />}
 				{alert.show && <Alert />}
 			</div>
+
 			{/*main content*/}
 			<div className="flex-grow flex items-center justify-center">
 				{children}
