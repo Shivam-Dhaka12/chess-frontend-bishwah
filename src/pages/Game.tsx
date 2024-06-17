@@ -38,6 +38,22 @@ interface Message {
 }
 
 function Game() {
+	const initialSquareStyles: {
+		[key: string]: { backgroundColor: string; border?: string };
+	} = {};
+	for (let i = 0; i < 8; i++) {
+		for (let j = 0; j < 8; j++) {
+			const squareKey = `${String.fromCharCode(97 + i)}${j + 1}`; // Convert column letter to lowercase and prepend row number
+			const isDarkSquare = (i + j) % 2 !== 0; // Determine if the square is dark based on its position
+			initialSquareStyles[squareKey] = {
+				backgroundColor: isDarkSquare ? '#475569' : '#E2E8F0', // Set dark squares to black and light squares to white
+			};
+		}
+	}
+
+	console.log(initialSquareStyles);
+
+	const [squareStyles, setSquareStyles] = useState(initialSquareStyles);
 	const [chess, setChess] = useState<Chess>(new Chess());
 	const [fen, setFen] = useState<string>(chess.fen());
 	const [over, setOver] = useState<'' | string>('');
@@ -231,6 +247,13 @@ function Game() {
 		return true;
 	};
 
+	function isDarkSquare(square: string) {
+		const file = square[0].charCodeAt(0) - 'a'.charCodeAt(0) + 1; // Convert 'a'-'h' to 1-8
+		const rank = parseInt(square[1], 10);
+		// Determine if the square is dark or light based on its coordinates
+		return file % 2 !== rank % 2;
+	}
+
 	const onSquareClick = (square: Square) => {
 		if (selectedSquare === square) {
 			setSelectedSquare(null);
@@ -239,9 +262,27 @@ function Game() {
 		}
 
 		const moves = chess.moves({ square, verbose: true });
-		const validMoves = moves.map((move) => move.to);
+		const legalMoves = moves.map((move) => move.to);
 		setSelectedSquare(square);
-		setValidMoves(validMoves);
+		setValidMoves(legalMoves);
+
+		validMoves.forEach((move) => {
+			if (isDarkSquare(move)) {
+				initialSquareStyles[move] = {
+					backgroundColor: 'rgb(2 132 199)',
+				};
+			} else {
+				initialSquareStyles[move] = {
+					backgroundColor: 'rgb(186 230 253)',
+					border: '3px solid rgb(14 165 233)',
+				};
+			}
+		});
+
+		setSquareStyles((prevStyles) => ({
+			...prevStyles,
+			...initialSquareStyles,
+		}));
 	};
 
 	return (
@@ -262,23 +303,17 @@ function Game() {
 					<Chessboard
 						position={fen}
 						onPieceDrop={onDrop}
-						boardOrientation={playerColor}
-						customDarkSquareStyle={{
-							backgroundColor: '#475569',
-						}}
-						customLightSquareStyle={{
-							backgroundColor: '#E2E8F0',
-						}}
-						showBoardNotation
+						// boardOrientation={playerColor}
+						// customDarkSquareStyle={{
+						// 	backgroundColor: '#475569',
+						// }}
+						// customLightSquareStyle={{
+						// 	backgroundColor: '#E2E8F0',
+						// }}
+						showBoardNotation={false}
 						onSquareClick={onSquareClick}
+						customSquareStyles={squareStyles}
 					/>
-					{validMoves.map((move) => (
-						<div
-							key={move}
-							className="valid-move-square"
-							style={{ position: 'absolute', top: 0, left: 0 }}
-						/>
-					))}
 				</div>
 				<p className="p-4 mb-4 text-slate-50 font-bold text-lg md:text-2xl text-center">
 					You: <span className="text-sky-500">{username}</span>
