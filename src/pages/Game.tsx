@@ -63,7 +63,12 @@ function Game() {
 	const [result, setResult] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
 	const [validMoves, setValidMoves] = useState<string[]>([]);
-	const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+	const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
+	const [promotionSquare, setPromotionSquare] = useState<{
+		sourceSquare: Square;
+		targetSquare: Square;
+	} | null>(null);
+
 	// const [roomState, setRoomState] = useState<RoomState>();
 	const [playerColor, setPlayerColor] = useState<
 		BoardOrientation | undefined
@@ -255,10 +260,25 @@ function Game() {
 	}
 
 	const onSquareClick = (square: Square) => {
+		if (
+			(playerColor === 'white' && chess.turn() !== 'w') ||
+			(playerColor === 'black' && chess.turn() !== 'b')
+		) {
+			return;
+		}
 		if (selectedSquare === square) {
 			setSelectedSquare(null);
 			setValidMoves([]);
+			setSquareStyles(() => ({
+				...initialSquareStyles,
+			}));
 			return;
+		}
+
+		// If a square is already selected and the clicked square is a valid move
+		if (selectedSquare && validMoves.includes(square)) {
+			onDrop(selectedSquare, square);
+			setSelectedSquare(null);
 		}
 
 		const moves = chess.moves({ square, verbose: true });
@@ -266,13 +286,14 @@ function Game() {
 		setSelectedSquare(square);
 		setValidMoves(legalMoves);
 
-		validMoves.forEach((move) => {
+		const squareStyles = structuredClone(initialSquareStyles);
+		legalMoves.forEach((move) => {
 			if (isDarkSquare(move)) {
-				initialSquareStyles[move] = {
+				squareStyles[move] = {
 					backgroundColor: 'rgb(2 132 199)',
 				};
 			} else {
-				initialSquareStyles[move] = {
+				squareStyles[move] = {
 					backgroundColor: 'rgb(186 230 253)',
 					border: '3px solid rgb(14 165 233)',
 				};
@@ -281,8 +302,45 @@ function Game() {
 
 		setSquareStyles((prevStyles) => ({
 			...prevStyles,
-			...initialSquareStyles,
+			...squareStyles,
 		}));
+	};
+
+	const onPromotionCheck = (
+		sourceSquare: Square,
+		targetSquare: Square,
+		piece: string
+	) => {
+		const isPromotion =
+			((piece === 'wP' &&
+				sourceSquare[1] === '7' &&
+				targetSquare[1] === '8') ||
+				(piece === 'bP' &&
+					sourceSquare[1] === '2' &&
+					targetSquare[1] === '1')) &&
+			Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <=
+				1;
+
+		if (isPromotion) {
+			setPromotionSquare({ sourceSquare, targetSquare });
+		}
+
+		return isPromotion;
+	};
+
+	const onPromotionPieceSelect = (piece: string) => {
+		if (!promotionSquare) return false;
+
+		const { sourceSquare, targetSquare } = promotionSquare;
+
+		const move = chess.move({
+			from: sourceSquare,
+			to: targetSquare,
+			promotion: piece.toLowerCase(), // Use the selected piece for promotion
+		});
+
+		setPromotionSquare(null); // Reset the promotion square
+		return !!move; // Return true if the move was successful
 	};
 
 	return (
@@ -303,13 +361,7 @@ function Game() {
 					<Chessboard
 						position={fen}
 						onPieceDrop={onDrop}
-						// boardOrientation={playerColor}
-						// customDarkSquareStyle={{
-						// 	backgroundColor: '#475569',
-						// }}
-						// customLightSquareStyle={{
-						// 	backgroundColor: '#E2E8F0',
-						// }}
+						boardOrientation={playerColor}
 						showBoardNotation={false}
 						onSquareClick={onSquareClick}
 						customSquareStyles={squareStyles}
