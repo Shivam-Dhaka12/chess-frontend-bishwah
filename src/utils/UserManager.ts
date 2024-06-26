@@ -1,5 +1,12 @@
+interface IUser {
+	username: string;
+	wins: number;
+	losses: number;
+	draws: number;
+}
+
 class UserManager {
-	static get(): string {
+	static get(): IUser {
 		const user: string | undefined | null =
 			localStorage.getItem('__userdata');
 
@@ -7,10 +14,15 @@ class UserManager {
 			const data = JSON.parse(user);
 			return data;
 		}
-		return 'Test_User';
+		return {
+			username: 'Test_User',
+			wins: 0,
+			losses: 0,
+			draws: 0,
+		};
 	}
 
-	static set(val: string): void {
+	static set(val: IUser): void {
 		localStorage.setItem('__userdata', JSON.stringify(val));
 	}
 

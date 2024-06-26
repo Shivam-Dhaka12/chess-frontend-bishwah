@@ -136,6 +136,7 @@ function JoinRoomForm({ onSetForm }: FormProps) {
 				hover:border-b-gray-50 transition-colors white-eye text-center"
 				onChange={(e) => setRoomId(e.target.value)}
 				value={roomId}
+				required
 			/>
 			<button
 				type="submit"

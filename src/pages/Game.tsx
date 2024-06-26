@@ -16,6 +16,7 @@ interface MoveData {
 	from: Square;
 	to: Square;
 	color: Color;
+	promotion: string;
 }
 
 interface Player {
@@ -60,14 +61,14 @@ function Game() {
 	const [newMessages, setNewMessages] = useState(false);
 	const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
 	// 0 is for white, 1 is for black and 2 is for draw
-	const [result, setResult] = useState<'' | string>('');
+	// const [result, setResult] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
 	const [validMoves, setValidMoves] = useState<string[]>([]);
 	const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
-	const [promotionSquare, setPromotionSquare] = useState<{
-		sourceSquare: Square;
-		targetSquare: Square;
-	} | null>(null);
+	// const [promotionSquare, setPromotionSquare] = useState<{
+	// 	sourceSquare: Square;
+	// 	targetSquare: Square;
+	// } | null>(null);
 
 	// const [roomState, setRoomState] = useState<RoomState>();
 	const [playerColor, setPlayerColor] = useState<
@@ -194,6 +195,7 @@ function Game() {
 				);
 
 				if (chess.isGameOver()) {
+					let result = '';
 					if (chess.isCheckmate()) {
 						setOver(
 							`Checkmate 😉, ${
@@ -201,24 +203,30 @@ function Game() {
 							} won the game 🎉`
 						);
 						if (chess.turn() === 'w') {
-							setResult('1');
+							result = '1'; //black won
 						} else if (chess.turn() === 'b') {
-							setResult('0');
+							result = '0';
 						}
 					} else if (chess.isDraw()) {
 						setOver(`It's a draw 🤝`);
-						setResult('2');
+						result = '2';
 					} else {
 						setOver('Game Over ✌️');
 					}
+
+					socket?.emit('game-over', {
+						roomId,
+						result,
+					});
 				}
 
 				return result;
 			} catch (error) {
+				console.log(error);
 				return null;
 			}
 		},
-		[chess]
+		[chess, roomId, socket]
 	);
 
 	const onDrop = (sourceSquare: Square, targetSquare: Square): boolean => {
@@ -226,6 +234,7 @@ function Game() {
 			from: sourceSquare,
 			to: targetSquare,
 			color: chess.turn(),
+			promotion: 'q',
 		};
 
 		// Check if the current player is allowed to move the piece
@@ -306,42 +315,42 @@ function Game() {
 		}));
 	};
 
-	const onPromotionCheck = (
-		sourceSquare: Square,
-		targetSquare: Square,
-		piece: string
-	) => {
-		const isPromotion =
-			((piece === 'wP' &&
-				sourceSquare[1] === '7' &&
-				targetSquare[1] === '8') ||
-				(piece === 'bP' &&
-					sourceSquare[1] === '2' &&
-					targetSquare[1] === '1')) &&
-			Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <=
-				1;
+	// const onPromotionCheck = (
+	// 	sourceSquare: Square,
+	// 	targetSquare: Square,
+	// 	piece: string
+	// ) => {
+	// 	const isPromotion =
+	// 		((piece === 'wP' &&
+	// 			sourceSquare[1] === '7' &&
+	// 			targetSquare[1] === '8') ||
+	// 			(piece === 'bP' &&
+	// 				sourceSquare[1] === '2' &&
+	// 				targetSquare[1] === '1')) &&
+	// 		Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <=
+	// 			1;
 
-		if (isPromotion) {
-			setPromotionSquare({ sourceSquare, targetSquare });
-		}
+	// 	if (isPromotion) {
+	// 		setPromotionSquare({ sourceSquare, targetSquare });
+	// 	}
 
-		return isPromotion;
-	};
+	// 	return isPromotion;
+	// };
 
-	const onPromotionPieceSelect = (piece: string) => {
-		if (!promotionSquare) return false;
+	// const onPromotionPieceSelect = (piece: string) => {
+	// 	if (!promotionSquare) return false;
 
-		const { sourceSquare, targetSquare } = promotionSquare;
+	// 	const { sourceSquare, targetSquare } = promotionSquare;
 
-		const move = chess.move({
-			from: sourceSquare,
-			to: targetSquare,
-			promotion: piece.toLowerCase(), // Use the selected piece for promotion
-		});
+	// 	const move = chess.move({
+	// 		from: sourceSquare,
+	// 		to: targetSquare,
+	// 		promotion: piece.toLowerCase(), // Use the selected piece for promotion
+	// 	});
 
-		setPromotionSquare(null); // Reset the promotion square
-		return !!move; // Return true if the move was successful
-	};
+	// 	setPromotionSquare(null); // Reset the promotion square
+	// 	return !!move; // Return true if the move was successful
+	// };
 
 	return (
 		<div className="w-full justify-center flex">
@@ -393,10 +402,6 @@ function Game() {
 				handleContinue={() => {
 					setOver('');
 					navigate('/');
-					socket?.emit('game-over', {
-						roomId,
-						result,
-					});
 				}}
 			/>
 		</div>
