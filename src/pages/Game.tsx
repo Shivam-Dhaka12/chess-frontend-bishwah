@@ -16,6 +16,7 @@ interface MoveData {
 	from: Square;
 	to: Square;
 	color: Color;
+	promotion: string;
 }
 
 interface Player {
@@ -64,10 +65,10 @@ function Game() {
 	const [opponent, setOpponent] = useState<Player | null>(null);
 	const [validMoves, setValidMoves] = useState<string[]>([]);
 	const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
-	const [promotionSquare, setPromotionSquare] = useState<{
-		sourceSquare: Square;
-		targetSquare: Square;
-	} | null>(null);
+	// const [promotionSquare, setPromotionSquare] = useState<{
+	// 	sourceSquare: Square;
+	// 	targetSquare: Square;
+	// } | null>(null);
 
 	// const [roomState, setRoomState] = useState<RoomState>();
 	const [playerColor, setPlayerColor] = useState<
@@ -188,6 +189,7 @@ function Game() {
 		(move: MoveData): Move | null => {
 			try {
 				const result: Move = chess.move(move);
+				console.log('inside');
 				console.log('Making a move: ' + JSON.stringify(result));
 				console.log(
 					`over : ${chess.isGameOver()}, checkmate : ${chess.isCheckmate()}`
@@ -215,6 +217,7 @@ function Game() {
 
 				return result;
 			} catch (error) {
+				console.error(error);
 				return null;
 			}
 		},
@@ -226,6 +229,7 @@ function Game() {
 			from: sourceSquare,
 			to: targetSquare,
 			color: chess.turn(),
+			promotion: 'q',
 		};
 
 		// Check if the current player is allowed to move the piece
@@ -237,6 +241,7 @@ function Game() {
 		}
 
 		const move: Move | null = makeAMove(moveData);
+
 		if (move) {
 			const newFen = chess.fen();
 			setFen(newFen);
@@ -272,6 +277,7 @@ function Game() {
 			setSquareStyles(() => ({
 				...initialSquareStyles,
 			}));
+			console.log('clearing');
 			return;
 		}
 
@@ -306,42 +312,42 @@ function Game() {
 		}));
 	};
 
-	const onPromotionCheck = (
-		sourceSquare: Square,
-		targetSquare: Square,
-		piece: string
-	) => {
-		const isPromotion =
-			((piece === 'wP' &&
-				sourceSquare[1] === '7' &&
-				targetSquare[1] === '8') ||
-				(piece === 'bP' &&
-					sourceSquare[1] === '2' &&
-					targetSquare[1] === '1')) &&
-			Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <=
-				1;
+	// const onPromotionCheck = (
+	// 	sourceSquare: Square,
+	// 	targetSquare: Square,
+	// 	piece: string
+	// ) => {
+	// 	const isPromotion =
+	// 		((piece === 'wP' &&
+	// 			sourceSquare[1] === '7' &&
+	// 			targetSquare[1] === '8') ||
+	// 			(piece === 'bP' &&
+	// 				sourceSquare[1] === '2' &&
+	// 				targetSquare[1] === '1')) &&
+	// 		Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <=
+	// 			1;
 
-		if (isPromotion) {
-			setPromotionSquare({ sourceSquare, targetSquare });
-		}
+	// 	if (isPromotion) {
+	// 		setPromotionSquare({ sourceSquare, targetSquare });
+	// 	}
 
-		return isPromotion;
-	};
+	// 	return isPromotion;
+	// };
 
-	const onPromotionPieceSelect = (piece: string) => {
-		if (!promotionSquare) return false;
+	// const onPromotionPieceSelect = (piece: string) => {
+	// 	if (!promotionSquare) return false;
 
-		const { sourceSquare, targetSquare } = promotionSquare;
+	// 	const { sourceSquare, targetSquare } = promotionSquare;
 
-		const move = chess.move({
-			from: sourceSquare,
-			to: targetSquare,
-			promotion: piece.toLowerCase(), // Use the selected piece for promotion
-		});
+	// 	const move = chess.move({
+	// 		from: sourceSquare,
+	// 		to: targetSquare,
+	// 		promotion: piece.toLowerCase(), // Use the selected piece for promotion
+	// 	});
 
-		setPromotionSquare(null); // Reset the promotion square
-		return !!move; // Return true if the move was successful
-	};
+	// 	setPromotionSquare(null); // Reset the promotion square
+	// 	return !!move; // Return true if the move was successful
+	// };
 
 	return (
 		<div className="w-full justify-center flex">
@@ -365,6 +371,7 @@ function Game() {
 						showBoardNotation={false}
 						onSquareClick={onSquareClick}
 						customSquareStyles={squareStyles}
+						autoPromoteToQueen={true}
 					/>
 				</div>
 				<p className="p-4 mb-4 text-slate-50 font-bold text-lg md:text-2xl text-center">
