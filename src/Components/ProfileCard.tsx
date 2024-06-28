@@ -15,12 +15,14 @@ export default function ProfileCard() {
 	const setAuthState = useSetRecoilState(authState);
 	const setUserState = useSetRecoilState(userState);
 	const showAlert = useShowAlert();
-	const user = useRecoilValue(userState).username;
+	const user = useRecoilValue(userState);
 	const token = useRecoilValue(authState).token;
 	const { sendRequest, loading } = useRequest();
 	const navigate = useNavigate();
+	console.log('HUHU USEER', user);
 
-	const initials = user
+	const { username, wins, losses, draws } = user;
+	const initials = username
 		.split(' ')
 		.map((name) => name.charAt(0).toUpperCase())
 		.join('');
@@ -63,6 +65,9 @@ export default function ProfileCard() {
 		UserManager.remove();
 		setUserState({
 			username: 'Test_User',
+			wins: 0,
+			losses: 0,
+			draws: 0,
 		});
 		deleteSocketInstance();
 		showAlert({
@@ -93,34 +98,37 @@ export default function ProfileCard() {
 						</div>
 
 						<div className="font-semibold text-slate-50 text-sm  mt-2 text-center">
-							{user}
+							{username}
 						</div>
 						<div className="mt-8 max-w-64 text-center  mx-auto  border-white border shadow-sm p-4 rounded-lg flex justify-around text-slate-100 text-2xl">
 							<div>
-								23
+								{wins}
 								<div className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
 									Wins
 								</div>
 							</div>
 							<div>
-								02
+								{losses}
 								<div className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
 									Losses
 								</div>
 							</div>
 							<div>
-								05
+								{draws}
 								<div className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
 									Draws
 								</div>
 							</div>
 						</div>
-						<div className="border-red-500 text-sm font-medium max-w-64 mx-auto p-4 mt-4 text-slate-200">
+						{/* <div className=" font-light text-sm max-w-64 my-4">
+						</div> */}
+						<div className="text-sm font-light max-w-64 mx-auto p-4 mt-4 text-slate-200 text-center">
 							<p>
-								<span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
+								{/* <span className="my-2 text-center max-w-3xl mx-auto   cursor-pointer font-mono font-medium  text-sky-400 text-sm">
 									Email:
-								</span>{' '}
-								{user}
+								</span>{' '} */}
+								These stats will only be updated on your next
+								login :)
 							</p>
 						</div>
 						<div>

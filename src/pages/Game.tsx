@@ -61,7 +61,7 @@ function Game() {
 	const [newMessages, setNewMessages] = useState(false);
 	const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
 	// 0 is for white, 1 is for black and 2 is for draw
-	const [result, setResult] = useState<'' | string>('');
+	// const [result, setResult] = useState<'' | string>('');
 	const [opponent, setOpponent] = useState<Player | null>(null);
 	const [validMoves, setValidMoves] = useState<string[]>([]);
 	const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -196,6 +196,7 @@ function Game() {
 				);
 
 				if (chess.isGameOver()) {
+					let result = '';
 					if (chess.isCheckmate()) {
 						setOver(
 							`Checkmate 😉, ${
@@ -203,25 +204,30 @@ function Game() {
 							} won the game 🎉`
 						);
 						if (chess.turn() === 'w') {
-							setResult('1');
+							result = '1'; //black won
 						} else if (chess.turn() === 'b') {
-							setResult('0');
+							result = '0';
 						}
 					} else if (chess.isDraw()) {
 						setOver(`It's a draw 🤝`);
-						setResult('2');
+						result = '2';
 					} else {
 						setOver('Game Over ✌️');
 					}
+
+					socket?.emit('game-over', {
+						roomId,
+						result,
+					});
 				}
 
 				return result;
 			} catch (error) {
-				console.error(error);
+				console.log(error);
 				return null;
 			}
 		},
-		[chess]
+		[chess, roomId, socket]
 	);
 
 	const onDrop = (sourceSquare: Square, targetSquare: Square): boolean => {
@@ -400,10 +406,6 @@ function Game() {
 				handleContinue={() => {
 					setOver('');
 					navigate('/');
-					socket?.emit('game-over', {
-						roomId,
-						result,
-					});
 				}}
 			/>
 		</div>
