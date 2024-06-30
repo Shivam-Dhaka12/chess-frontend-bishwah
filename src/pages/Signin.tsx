@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import Form from '../Components/Form';
+import Form from './../Components/Form';
 import { useSetRecoilState } from 'recoil';
-import { authState } from '../recoil/atoms/Auth';
-import Loader from '../Components/Loader';
-import { useRequest } from '../hooks/useRequest';
-import { userState } from '../recoil/atoms/User';
-import { getSocketInstance, handleSocketError } from '../utils/socketManager';
-import useShowAlert from '../hooks/useShowAlert';
-import TokenManager from '../utils/TokenManager';
-import UserManager from '../utils/UserManager';
+import { authState } from './../recoil/atoms/Auth';
+import Loader from './../Components/Loader';
+import { useRequest } from './../hooks/useRequest';
+import { userState } from './../recoil/atoms/User';
+import { getSocketInstance, handleSocketError } from './../utils/socketManager';
+import useShowAlert from './../hooks/useShowAlert';
+import TokenManager from './../utils/TokenManager';
+import UserManager from './../utils/UserManager';
 
 function Login() {
 	const navigate = useNavigate();

@@ -1,8 +1,8 @@
 import { useRecoilValue } from 'recoil';
 import ProfileCard from './ProfileCard';
 import { useNavigate } from 'react-router-dom';
-import { alertState } from '../recoil/atoms/Alert';
-import { authState } from '../recoil/atoms/Auth';
+import { alertState } from './../recoil/atoms/Alert';
+import { authState } from './../recoil/atoms/Auth';
 import Alert from './Alert';
 
 export default function Wrapper({ children }: { children: React.ReactNode }) {

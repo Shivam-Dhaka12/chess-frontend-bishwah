@@ -1,5 +1,5 @@
 import { useSetRecoilState } from 'recoil';
-import { alertState, TAlert } from '../recoil/atoms/Alert';
+import { alertState, TAlert } from './../recoil/atoms/Alert';
 import { useRef } from 'react';
 
 export default function useShowAlert() {

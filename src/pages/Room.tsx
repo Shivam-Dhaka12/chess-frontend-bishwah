@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import Form from '../Components/Form';
+import Form from './../Components/Form';
 import { useNavigate } from 'react-router-dom';
-import { getSocketInstance, handleSocketError } from '../utils/socketManager';
-import useShowAlert from '../hooks/useShowAlert';
-import { authState } from '../recoil/atoms/Auth';
+import { getSocketInstance, handleSocketError } from './../utils/socketManager';
+import useShowAlert from './../hooks/useShowAlert';
+import { authState } from './../recoil/atoms/Auth';
 import { useRecoilValue } from 'recoil';
 interface FormProps {
 	onSetForm: (form: string) => void;

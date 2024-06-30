@@ -1,15 +1,15 @@
 import { Chess, Color, Move, Square } from 'chess.js';
 import { useCallback, useEffect, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
-import CustomDialog from '../Components/CustomDialog';
-import Chat from '../Components/Chat';
-import CopyLink from '../Components/CopyLink';
-import useShowAlert from '../hooks/useShowAlert';
-import { getSocketInstance, handleSocketError } from '../utils/socketManager';
+import CustomDialog from './../Components/CustomDialog';
+import Chat from './../Components/Chat';
+import CopyLink from './../Components/CopyLink';
+import useShowAlert from './../hooks/useShowAlert';
+import { getSocketInstance, handleSocketError } from './../utils/socketManager';
 import { useRecoilValue } from 'recoil';
-import { authState } from '../recoil/atoms/Auth';
+import { authState } from './../recoil/atoms/Auth';
 import { useNavigate, useParams } from 'react-router-dom';
-import { userState } from '../recoil/atoms/User';
+import { userState } from './../recoil/atoms/User';
 import { BoardOrientation } from 'react-chessboard/dist/chessboard/types';
 
 interface MoveData {

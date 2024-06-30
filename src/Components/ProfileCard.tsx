@@ -1,14 +1,14 @@
 import Loader from './Loader';
-import TokenManager from '../utils/TokenManager';
-import useShowAlert from '../hooks/useShowAlert';
+import TokenManager from './../utils/TokenManager';
+import useShowAlert from './../hooks/useShowAlert';
 import { useState } from 'react';
-import { authState } from '../recoil/atoms/Auth';
-import { userState } from '../recoil/atoms/User';
-import { useRequest } from '../hooks/useRequest';
+import { authState } from './../recoil/atoms/Auth';
+import { userState } from './../recoil/atoms/User';
+import { useRequest } from './../hooks/useRequest';
 import { useNavigate } from 'react-router-dom';
-import { deleteSocketInstance } from '../utils/socketManager';
+import { deleteSocketInstance } from './../utils/socketManager';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import UserManager from '../utils/UserManager';
+import UserManager from './../utils/UserManager';
 
 export default function ProfileCard() {
 	const [isOpen, setIsOpen] = useState(false);

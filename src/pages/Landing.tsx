@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { authState } from '../recoil/atoms/Auth';
+import { authState } from './../recoil/atoms/Auth';
 
 export default function Landing() {
 	const navigate = useNavigate();

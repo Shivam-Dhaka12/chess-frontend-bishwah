@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import useShowAlert from '../hooks/useShowAlert';
+import useShowAlert from './../hooks/useShowAlert';
 export default function CopyLink({
 	roomId,
 	link,

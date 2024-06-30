@@ -1,5 +1,5 @@
 import { Socket, io } from 'socket.io-client';
-import { TAlert } from '../recoil/atoms/Alert';
+import { TAlert } from './../recoil/atoms/Alert';
 import { NavigateFunction } from 'react-router-dom';
 // Singleton pattern implementation
 let socketInstance: Socket | null = null;

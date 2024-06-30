@@ -1,5 +1,5 @@
 import { useRecoilState } from 'recoil';
-import { alertState } from '../recoil/atoms/Alert';
+import { alertState } from './../recoil/atoms/Alert';
 
 const alertTypeClasses: Record<string, string> = {
 	error: 'bg-pink-700 hover:bg-pink-600 ',

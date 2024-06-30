@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import UserManager from '../../utils/UserManager';
+import UserManager from './../../utils/UserManager';
 
 export const userState = atom({
 	key: 'user',

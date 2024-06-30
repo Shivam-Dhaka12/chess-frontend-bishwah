@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRequest } from '../hooks/useRequest';
-import Form from '../Components/Form';
-import Loader from '../Components/Loader';
-import useShowAlert from '../hooks/useShowAlert';
+import { useRequest } from './../hooks/useRequest';
+import Form from './../Components/Form';
+import Loader from './../Components/Loader';
+import useShowAlert from './../hooks/useShowAlert';
 
 const Signup = () => {
 	const navigate = useNavigate();
