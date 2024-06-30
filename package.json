@@ -12,6 +12,9 @@
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview"
 	},
+	"resolutions": {
+		"rollup": "npm:@rollup/wasm-node"
+	},
 	"dependencies": {
 		"@emoji-mart/data": "^1.1.2",
 		"@emoji-mart/react": "^1.1.1",
