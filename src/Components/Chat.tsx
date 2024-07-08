@@ -78,7 +78,9 @@ function ChatBox({
 	const messages = messagesReceived;
 	const lastMessageRef = useRef(null);
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (
+		event: React.FormEvent<HTMLFormElement> | React.MouseEvent
+	) => {
 		event.preventDefault();
 		if (messageInput && socket) {
 			// Send the message to the server
@@ -173,7 +175,7 @@ function ChatBox({
 						value={messageInput}
 						onChange={(e) => setMessageInput(e.target.value)}
 					/>
-					<div className=" cursor-pointer w-6">
+					<div className=" cursor-pointer w-6" onClick={handleSubmit}>
 						<img src="/send.png" alt="emoji button" />
 					</div>
 				</div>

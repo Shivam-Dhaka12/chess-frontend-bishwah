@@ -179,6 +179,32 @@ function Game() {
 							'Player move: ' + from + ' ' + to + ' ' + color
 						);
 					}
+
+					if (chess.isGameOver()) {
+						let result = '';
+						if (chess.isCheckmate()) {
+							setOver(
+								`Checkmate 😉, ${
+									chess.turn() === 'w' ? 'BLACK' : 'WHITE'
+								} won the game 🎉`
+							);
+							if (chess.turn() === 'w') {
+								result = '1'; //black won
+							} else if (chess.turn() === 'b') {
+								result = '0'; //white won
+							}
+						} else if (chess.isDraw()) {
+							setOver(`It's a draw 🤝`);
+							result = '2';
+						} else {
+							setOver('Game Over ✌️');
+						}
+
+						socket?.emit('game-over', {
+							roomId,
+							result,
+						});
+					}
 				}
 			}
 		);
@@ -189,45 +215,31 @@ function Game() {
 		(move: MoveData): Move | null => {
 			try {
 				const result: Move = chess.move(move);
-				console.log('inside');
 				console.log('Making a move: ' + JSON.stringify(result));
 				console.log(
 					`over : ${chess.isGameOver()}, checkmate : ${chess.isCheckmate()}`
 				);
 
 				if (chess.isGameOver()) {
-					let result = '';
 					if (chess.isCheckmate()) {
 						setOver(
 							`Checkmate 😉, ${
 								chess.turn() === 'w' ? 'BLACK' : 'WHITE'
 							} won the game 🎉`
 						);
-						if (chess.turn() === 'w') {
-							result = '1'; //black won
-						} else if (chess.turn() === 'b') {
-							result = '0';
-						}
 					} else if (chess.isDraw()) {
 						setOver(`It's a draw 🤝`);
-						result = '2';
 					} else {
 						setOver('Game Over ✌️');
 					}
-
-					socket?.emit('game-over', {
-						roomId,
-						result,
-					});
 				}
-
 				return result;
 			} catch (error) {
 				console.log(error);
 				return null;
 			}
 		},
-		[chess, roomId, socket]
+		[chess]
 	);
 
 	const onDrop = (sourceSquare: Square, targetSquare: Square): boolean => {
@@ -247,8 +259,8 @@ function Game() {
 		}
 
 		const move: Move | null = makeAMove(moveData);
-
-		if (move) {
+		console.log('Chess move: ' + JSON.stringify(move));
+		if (move !== null) {
 			const newFen = chess.fen();
 			setFen(newFen);
 			console.log('Sending FEN: ' + newFen);
