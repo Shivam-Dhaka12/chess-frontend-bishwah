@@ -417,7 +417,7 @@ function Game() {
 				contentText={over}
 				handleContinue={() => {
 					setOver('');
-					navigate('/');
+					window.location.href = '/';
 				}}
 			/>
 		</div>
