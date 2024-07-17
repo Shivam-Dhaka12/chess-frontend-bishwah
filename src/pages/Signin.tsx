@@ -60,6 +60,38 @@ function Login() {
 		}
 	}
 
+	async function handleGuestLogin() {
+		const response = await sendRequest(
+			'/api/auth/guest-signin',
+			{},
+			'Log in successful!'
+		);
+		if (response) {
+			const { token } = response.data;
+			TokenManager.set(token);
+			UserManager.set({
+				...response.data,
+			});
+			setAuthState({ token });
+			setUserState({ username: 'Guest', wins: 0, losses: 0, draws: 0 });
+
+			try {
+				const socket = getSocketInstance(token);
+				if (socket) {
+					handleSocketError(socket, showAlert);
+				}
+				navigate('/user/room');
+			} catch (error) {
+				console.log(error);
+				showAlert({
+					show: true,
+					type: 'error',
+					msg: 'Error: ' + error,
+				});
+			}
+		}
+	}
+
 	return (
 		<Form>
 			<form className=" flex flex-col" onSubmit={(e) => handleSubmit(e)}>
@@ -98,11 +130,19 @@ function Login() {
 				/>
 
 				<button
-					className="mt-12 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 disabled:bg-slate-600 highlight-white/20 hover:bg-sky-400 disabled:cursor-wait"
+					className="mt-6 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 font-bold focus:ring-offset-2 focus:ring-offset-slate-50 text-white h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto bg-sky-500 disabled:bg-slate-600 highlight-white/20 hover:bg-sky-400 disabled:cursor-wait"
 					type="submit"
 					disabled={loading}
 				>
 					{loading ? <Loader /> : 'Login'}
+				</button>
+
+				<button
+					onClick={handleGuestLogin}
+					type="button"
+					className="sm:flex items-center justify-center w-full  px-4 h-12 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg  bg-slate-800 ring-0 text-slate-300 highlight-white/5 hover:bg-slate-700 tracking-wide font-semibold mt-4"
+				>
+					Guest Login
 				</button>
 
 				<p className="mt-6 text-sm  text-center max-w-3xl mx-auto text-slate-400">
