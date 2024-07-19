@@ -73,7 +73,7 @@ function Login() {
 				...response.data,
 			});
 			setAuthState({ token });
-			setUserState({ username: 'Guest', wins: 0, losses: 0, draws: 0 });
+			setUserState({ username: token, wins: 0, losses: 0, draws: 0 });
 
 			try {
 				const socket = getSocketInstance(token);

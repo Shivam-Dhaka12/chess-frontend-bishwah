@@ -55,7 +55,7 @@ export default function ProfileCard() {
 			'Content-Type': 'application/json',
 			token, // Include the token in the Authorization header
 		};
-
+		console.log(token);
 		await sendRequest(url, postInputs, successMsg, headers);
 
 		TokenManager.remove();
