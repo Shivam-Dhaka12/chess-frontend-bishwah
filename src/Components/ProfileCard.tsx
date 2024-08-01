@@ -19,7 +19,7 @@ export default function ProfileCard() {
 	const token = useRecoilValue(authState).token;
 	const { sendRequest, loading } = useRequest();
 	const navigate = useNavigate();
-	console.log('HUHU USEER', user);
+	console.log('User:', user);
 
 	const { username, wins, losses, draws } = user;
 	const initials = username
