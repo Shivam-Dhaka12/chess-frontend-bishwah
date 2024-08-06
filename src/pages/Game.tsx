@@ -81,7 +81,7 @@ function Game() {
 	const { roomId } = useParams();
 
 	const authToken = useRecoilValue(authState).token;
-	const socket = getSocketInstance(authToken);
+	const socket = getSocketInstance(authToken, username);
 
 	function handleResign() {
 		if (socket) {

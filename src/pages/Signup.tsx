@@ -32,6 +32,8 @@ const Signup = () => {
 			return;
 		}
 
+		console.log(postInputs);
+
 		const response = await sendRequest(
 			url,
 			postInputs,

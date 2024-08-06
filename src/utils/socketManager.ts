@@ -4,7 +4,7 @@ import { NavigateFunction } from 'react-router-dom';
 // Singleton pattern implementation
 let socketInstance: Socket | null = null;
 
-const getSocketInstance = (jwt: string) => {
+const getSocketInstance = (jwt: string, username?: string) => {
 	if (!socketInstance) {
 		if (!jwt) {
 			console.log('jwt not provided');
@@ -18,6 +18,7 @@ const getSocketInstance = (jwt: string) => {
 			reconnectionAttempts: 5,
 			auth: {
 				token: jwt,
+				username: username,
 			},
 		});
 

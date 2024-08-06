@@ -22,10 +22,7 @@ export default function ProfileCard() {
 	console.log('User:', user);
 
 	const { username, wins, losses, draws } = user;
-	const initials = username
-		.split(' ')
-		.map((name) => name.charAt(0).toUpperCase())
-		.join('');
+	const initials = username.charAt(0).toUpperCase();
 
 	async function handleLogout() {
 		setIsOpen(false);
@@ -46,6 +43,8 @@ export default function ProfileCard() {
 			setAuthState({
 				token: '',
 			});
+
+			UserManager.remove();
 
 			navigate(onSuccessUrl);
 			return;

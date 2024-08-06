@@ -67,13 +67,13 @@ function Login() {
 			'Log in successful!'
 		);
 		if (response) {
-			const { token } = response.data;
+			const { token, username } = response.data;
 			TokenManager.set(token);
 			UserManager.set({
 				...response.data,
 			});
 			setAuthState({ token });
-			setUserState({ username: token, wins: 0, losses: 0, draws: 0 });
+			setUserState({ username: username, wins: 0, losses: 0, draws: 0 });
 
 			try {
 				const socket = getSocketInstance(token);
